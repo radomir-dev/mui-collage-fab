@@ -161,7 +161,7 @@ the same pitch in opposite directions.
 
 ## Development
 
-Requires Node.js 22.13 or newer.
+Requires Node.js 22.13 or newer. The development toolchain is pinned in `mise.toml`.
 
 ```bash
 npm install
@@ -183,6 +183,7 @@ npm run dev
 | `npm run check:size`             | Enforce the size-limit budgets for `dist-lib`.                           |
 | `npm run lint`                   | Oxlint, type-aware, with hooks and jsx-a11y rules.                       |
 | `npm run format:check`           | Oxfmt check. `npm run format` rewrites in place.                         |
+| `npm run check:node`             | Assert `@types/node`, `mise.toml` and `engines.node` share a major.      |
 | `npm run check:unused`           | Knip: unused files, exports and dependencies.                            |
 | `npm run check:release`          | `semantic-release --dry-run`, validating the release config.             |
 | `npm run check:actions-security` | Zizmor audit of the workflows.                                           |

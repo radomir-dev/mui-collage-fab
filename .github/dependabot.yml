@@ -42,6 +42,10 @@ updates:
         update-types: ['minor', 'patch']
     cooldown:
       default-days: 7
+    ignore:
+      # Node types have to match the major in mise.toml and engines.node.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: 'chore'
       include: scope
