@@ -46,6 +46,15 @@ updates:
       # Node types have to match the major in mise.toml and engines.node.
       - dependency-name: '@types/node'
         update-types: ['version-update:semver-major']
+      # React 19 is a coordinated migration, not an automatic bump.
+      - dependency-name: react
+        update-types: ['version-update:semver-major']
+      - dependency-name: react-dom
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react-dom'
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: 'chore'
       include: scope
