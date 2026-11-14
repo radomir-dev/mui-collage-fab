@@ -20,11 +20,13 @@ interface Vector {
   y: number;
 }
 
-const DIRECTION_VECTORS: Record<CollageFabDirection, Vector> = {
-  left: { x: -1, y: 0 },
-  right: { x: 1, y: 0 },
-  up: { x: 0, y: -1 },
-  down: { x: 0, y: 1 },
+const ORIGIN: Vector = { x: 0, y: 0 };
+
+const DIRECTION_VECTORS: Record<CollageFabDirection, readonly [number, number]> = {
+  left: [-1, 0],
+  right: [1, 0],
+  up: [0, -1],
+  down: [0, 1],
 };
 
 /** Where the anchor child sits on one axis of the root's box. */
@@ -37,10 +39,19 @@ export interface CollageFabGroupGeometry {
 }
 
 function translateCss({ x, y }: Vector, horizontal: boolean): string {
-  if (x !== 0 && y !== 0) {
-    return `translate(${x}px, ${y}px)`;
+  if (y === 0 && (horizontal || x !== 0)) {
+    return `translateX(${x}px)`;
   }
-  return horizontal ? `translateX(${x}px)` : `translateY(${y}px)`;
+  if (x === 0) {
+    return `translateY(${y}px)`;
+  }
+  return `translate(${x}px, ${y}px)`;
+}
+
+// Trigonometry leaves floating-point dust on the axes, which would show up in the
+// generated CSS strings.
+function clean(value: number): number {
+  return +value.toFixed(4);
 }
 
 function directionOf(index: number, ownerState: CollageFabOwnerState): CollageFabDirection {
@@ -49,9 +60,18 @@ function directionOf(index: number, ownerState: CollageFabOwnerState): CollageFa
 
 /** The offset a child travels by once the group is fully expanded. */
 function getItemOffset(index: number, ownerState: CollageFabOwnerState): Vector {
-  const direction = directionOf(index, ownerState);
-  const vector = DIRECTION_VECTORS[direction];
   const pitch = ownerState.size + ownerState.gap;
+
+  if (ownerState.spread === 'radial') {
+    if (index === 0) {
+      return ORIGIN;
+    }
+    const angle = ((ownerState.radialStart + (index - 1) * ownerState.radialStep) * Math.PI) / 180;
+    return { x: clean(Math.sin(angle) * pitch), y: clean(-Math.cos(angle) * pitch) };
+  }
+
+  const direction = directionOf(index, ownerState);
+  const [x, y] = DIRECTION_VECTORS[direction];
   // Children sharing a direction fan one pitch apart, so a group that splits over
   // two axes reads as one leg per direction instead of leaving a long empty one.
   let position = 0;
@@ -63,16 +83,15 @@ function getItemOffset(index: number, ownerState: CollageFabOwnerState): Vector 
   // The anchor already occupies the first slot of its own direction group.
   const travel = (position + (direction === directionOf(0, ownerState) ? 0 : 1)) * pitch;
 
-  return { x: vector.x * travel, y: vector.y * travel };
+  return { x: x * travel, y: y * travel };
 }
 
-function alignOf(offsets: number[]): CollageFabAlign {
-  const negative = offsets.some((offset) => offset < 0);
-  const positive = offsets.some((offset) => offset > 0);
-  if (negative && positive) {
-    return 'center';
-  }
-  return negative ? 'end' : 'start';
+function spanOf(offsets: number[], size: number): [number, CollageFabAlign] {
+  const low = Math.min(...offsets, 0);
+  const high = Math.max(...offsets, 0);
+  const align = low < 0 && high > 0 ? 'center' : low < 0 ? 'end' : 'start';
+  const extent = align === 'center' ? 2 * Math.max(-low, high) + size : high - low + size;
+  return [extent, align];
 }
 
 /**
@@ -80,27 +99,27 @@ function alignOf(offsets: number[]): CollageFabAlign {
  * on the edge the group fans away from, so pinning that edge in the parent keeps the
  * collapsed button still while the box grows. An axis the children fan along in both
  * directions is centred on the anchor instead, which needs the parent to centre it.
+ * A radial group keeps the box a single button: the ring paints outside it, which is
+ * what keeps the anchor on one pixel while the children travel.
  */
 export function getGroupGeometry(ownerState: CollageFabOwnerState): CollageFabGroupGeometry {
   const { count, size } = ownerState;
+
+  if (ownerState.spread === 'radial') {
+    return {
+      extent: { width: size, height: size },
+      align: { x: 'center', y: 'center' },
+    };
+  }
+
   const offsets = Array.from({ length: count }, (_, index) => getItemOffset(index, ownerState));
   const xs = offsets.map((offset) => offset.x);
   const ys = offsets.map((offset) => offset.y);
 
-  const span = (values: number[]) => {
-    const min = Math.min(...values, 0);
-    const max = Math.max(...values, 0);
-    const align = alignOf(values);
-    if (align === 'center') {
-      return 2 * Math.max(-min, max) + size;
-    }
-    return max - min + size;
-  };
+  const [width, x] = spanOf(xs, size);
+  const [height, y] = spanOf(ys, size);
 
-  return {
-    extent: { width: span(xs), height: span(ys) },
-    align: { x: alignOf(xs), y: alignOf(ys) },
-  };
+  return { extent: { width, height }, align: { x, y } };
 }
 
 /**
@@ -109,20 +128,24 @@ export function getGroupGeometry(ownerState: CollageFabOwnerState): CollageFabGr
  * container while the button morphs. `spread` is the distance the mask image has
  * to cover to reach across the whole expanded row, so it scales with `gap`.
  *
- * Both the travel and the cut line are vectors, so the same arithmetic carries
- * over to directions that are not aligned with an axis.
+ * A row cuts each slice with a band; a radial group cuts it with a wedge whose apex
+ * sits on the stack centre. Both keep the cut pinned by cancelling the travel out
+ * of `mask-position`.
  */
 export function getItemGeometry(
   index: number,
   ownerState: CollageFabOwnerState,
 ): CollageFabItemGeometry {
+  if (ownerState.spread === 'radial') {
+    return getWedgeGeometry(index, ownerState);
+  }
+
   const { count, size, gap, fadeWidth, open } = ownerState;
-  const pitch = size + gap;
-  const spread = (count - 1) * pitch + size + fadeWidth;
-  const vector = DIRECTION_VECTORS[directionOf(index, ownerState)];
-  const horizontal = vector.x !== 0;
-  const leading = (horizontal ? vector.x : vector.y) < 0;
-  const offset = open ? getItemOffset(index, ownerState) : { x: 0, y: 0 };
+  const spread = (count - 1) * (size + gap) + size + fadeWidth;
+  const [x, y] = DIRECTION_VECTORS[directionOf(index, ownerState)];
+  const horizontal = x !== 0;
+  const leading = (horizontal ? x : y) < 0;
+  const offset = open ? getItemOffset(index, ownerState) : ORIGIN;
 
   // Slice boundaries, measured inside the item from the edge the group fans towards.
   // The anchor takes a whole `spread` so its cut line never crosses the button: it is
@@ -133,10 +156,10 @@ export function getItemGeometry(
   // lines separate them.
   const cut = leading ? boundary : anchorBoundary;
   const ramp = cut - spread - fadeWidth / 2;
-  const base: Vector = horizontal ? { x: ramp, y: 0 } : { x: 0, y: ramp };
   // The mask slides against the travel, so `mask-position` and `translate` cancel out
   // and the cut line stays where it was while collapsed.
-  const maskPosition: Vector = { x: base.x - offset.x, y: base.y - offset.y };
+  const maskPositionX = horizontal ? ramp - offset.x : -offset.x;
+  const maskPositionY = horizontal ? -offset.y : ramp - offset.y;
 
   // The gradient axis stays fixed per orientation; only the stop order flips.
   const stops = leading
@@ -148,6 +171,32 @@ export function getItemGeometry(
     maskImage:
       count > 1 ? `linear-gradient(${horizontal ? 'to right' : 'to bottom'}, ${stops})` : 'none',
     maskSize: horizontal ? `${2 * spread}px 100%` : `100% ${2 * spread}px`,
-    maskPosition: `${maskPosition.x}px ${maskPosition.y}px`,
+    maskPosition: `${maskPositionX}px ${maskPositionY}px`,
+  };
+}
+
+function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): CollageFabItemGeometry {
+  const { count, size, gap, fadeWidth, open } = ownerState;
+  const step = ownerState.radialStep;
+  const offset = open ? getItemOffset(index, ownerState) : ORIGIN;
+  // Every child of a ring travels one pitch, so the mask image has to reach that far
+  // past it for the apex to stay on the stack centre.
+  const reach = count > 1 ? size + gap : 0;
+  const extent = size + 2 * reach;
+  // An arc of `fadeWidth` on the rim reads the same at every size.
+  const fade = fadeWidth ? ((fadeWidth / (size / 2)) * 180) / Math.PI : 0;
+  const from = ownerState.radialStart + (index - 1) * step - step / 2 - fade / 2;
+  // The last wedge fades out into the anchor's disc; every earlier one hands over to
+  // the wedge above it and ends hard, so the two never double-fade the same edge.
+  const window = clean(step + fade);
+
+  return {
+    translate: translateCss(offset, false),
+    maskImage:
+      count > 1 && index > 0
+        ? `conic-gradient(from ${clean(from)}deg, #0000 0deg, #000 ${clean(fade)}deg, #000 ${clean(index === count - 1 ? step : step + fade)}deg, transparent ${window}deg)`
+        : 'none',
+    maskSize: `${extent}px ${extent}px`,
+    maskPosition: `${-offset.x - reach}px ${-offset.y - reach}px`,
   };
 }

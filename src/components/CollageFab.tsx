@@ -32,6 +32,11 @@ export type CollageFabSize = 'small' | 'medium' | 'large' | number;
  */
 export type CollageFabVariant = 'circular' | 'rounded' | 'square';
 
+/**
+ * How the children leave the anchor: along a line, or onto a ring around it.
+ */
+export type CollageFabSpread = 'line' | 'radial';
+
 // `'rounded'` scales with the button so its corner reads the same at every size;
 // 25% stays a rounded square, where a circle would need 50%.
 const CORNER_RADIUS: Record<CollageFabVariant, number | string> = {
@@ -88,6 +93,12 @@ export interface CollageFabOwnerState {
   direction: CollageFabDirection;
   /** The resolved direction of each child, in child order. */
   directions: CollageFabDirection[];
+  /** How the children leave the anchor: along a line, or onto a ring. */
+  spread: CollageFabSpread;
+  /** The angle in degrees the first wedge is centred on when `spread` is `'radial'`. */
+  radialStart: number;
+  /** The angle in degrees between two wedges when `spread` is `'radial'`. */
+  radialStep: number;
   /** The resolved pointer trigger mode. */
   trigger: CollageFabTrigger;
   /** The button diameter in pixels, after resolving the named size. */
@@ -179,6 +190,21 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    * missing or past the end of the list falls back to `direction`.
    */
   directions?: CollageFabDirection[];
+  /**
+   * How the children leave the anchor. `'line'` fans them along their directions;
+   * `'radial'` sends them onto a ring one pitch around the anchor, each cut by a wedge
+   * that lets it emerge from behind the anchor.
+   */
+  spread?: CollageFabSpread;
+  /**
+   * Angle in degrees the first ring child sits on when `spread` is `'radial'`.
+   */
+  radialStart?: number;
+  /**
+   * Angle in degrees between two ring children when `spread` is `'radial'`.
+   * Defaults to `360 / (count - 1)`, which spaces them evenly around the anchor.
+   */
+  radialStep?: number;
   /**
    * Diameter of every button. Named sizes resolve to small 40px, medium 48px,
    * large 56px; numeric values are used verbatim.
@@ -427,6 +453,9 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       children,
       direction = COLLAGE_FAB_DEFAULTS.direction,
       directions: directionsProp,
+      spread = COLLAGE_FAB_DEFAULTS.spread,
+      radialStart = COLLAGE_FAB_DEFAULTS.radialStart,
+      radialStep: radialStepProp,
       size = COLLAGE_FAB_DEFAULTS.size,
       variant = COLLAGE_FAB_DEFAULTS.variant,
       gap = COLLAGE_FAB_DEFAULTS.gap,
@@ -467,6 +496,9 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       open,
       direction,
       directions,
+      spread,
+      radialStart,
+      radialStep: radialStepProp ?? 360 / Math.max(count - 1, 1),
       trigger,
       size: resolveSize(size),
       variant,
