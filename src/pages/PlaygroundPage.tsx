@@ -179,8 +179,9 @@ export function PlaygroundPage() {
 
   const sizePx = SIZE_PX[size];
   const expandedExtent = count * sizePx + Math.max(count - 1, 0) * gap;
-  // The stage keeps a fixed size and the anchor sits at its centre, so `gap` grows the
-  // fan outwards instead of dragging the whole group across the preview.
+  const horizontal = direction === 'left' || direction === 'right';
+  // The anchor hugs the edge it fans from, so the trigger never moves and the row grows
+  // into the stage instead of out of the preview.
   const anchorCorner =
     direction === 'left'
       ? { right: 0, top: 0 }
@@ -278,26 +279,33 @@ export function PlaygroundPage() {
               <Box
                 sx={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  minHeight: 320,
+                  alignItems:
+                    direction === 'up'
+                      ? 'flex-end'
+                      : direction === 'down'
+                        ? 'flex-start'
+                        : 'center',
+                  justifyContent:
+                    direction === 'left'
+                      ? 'flex-end'
+                      : direction === 'right'
+                        ? 'flex-start'
+                        : 'center',
+                  minHeight: horizontal ? 320 : Math.max(320, expandedExtent + 48),
                   borderRadius: 3,
                   border: '1px dashed',
                   borderColor: 'divider',
                   bgcolor: '#101010',
                   p: 3,
-                  overflow: 'visible',
+                  overflow: 'hidden',
                   position: 'relative',
                 }}
               >
                 <Box
                   sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
+                    position: 'relative',
                     width: sizePx,
                     height: sizePx,
-                    transform: 'translate(-50%, -50%)',
                   }}
                 >
                   <CollageFab
