@@ -1,10 +1,12 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { format, resolveConfig } from 'prettier';
+import { format } from 'oxfmt';
 import { generateApiDocs } from './api-docs.ts';
+import type { FormatConfig } from 'oxfmt';
 import type { ApiDocs, ApiFieldDoc } from '../src/docs/api-docs.types.ts';
 
 const README_FILE = fileURLToPath(new URL('../README.md', import.meta.url));
+const OXFMT_CONFIG = new URL('../.oxfmtrc.json', import.meta.url);
 
 const escapeCell = (text: string) => text.replace(/\|/g, '\\|');
 const code = (text: string) => `\`${text}\``;
@@ -65,10 +67,18 @@ export async function renderReadme(): Promise<string> {
     ['owner-state', ownerStateBlock(docs)],
   ].reduce((result, [id, body]) => replaceBlock(result, id, body), markdown);
 
-  // The generated tables are re-padded by Prettier, so render through it to keep
+  // The generated tables are re-padded by the formatter, so render through it to keep
   // `format:check` and `docs:check` agreeing on the same file.
-  const config = await resolveConfig(README_FILE);
-  return format(generated, { ...config, parser: 'markdown' });
+  const {
+    $schema: _schema,
+    ignorePatterns: _ignore,
+    ...options
+  } = JSON.parse(await readFile(OXFMT_CONFIG, 'utf8')) as FormatConfig;
+  const { code: formatted, errors } = await format(README_FILE, generated, options);
+  if (errors.length > 0) {
+    throw new Error(`oxfmt: ${errors[0]?.message ?? 'unknown error'}`);
+  }
+  return formatted;
 }
 
 async function main() {

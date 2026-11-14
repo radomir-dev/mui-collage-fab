@@ -29,8 +29,7 @@ updates:
           - '@axe-core/playwright'
         update-types: ['minor', 'patch']
       lint:
-        patterns:
-          ['eslint', '@eslint/js', 'typescript-eslint', 'eslint-*', 'prettier', 'knip', 'globals']
+        patterns: ['oxlint', 'oxlint-tsgolint', 'oxfmt', 'knip']
         update-types: ['minor', 'patch']
       types:
         patterns: ['typescript', '@types/node']
