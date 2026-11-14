@@ -15,38 +15,39 @@ const hasBinary = (name) => spawnSync('which', [name], { stdio: 'ignore' }).stat
 
 // Steps in the same phase run concurrently; each phase waits for the previous one.
 // `package`, `size` and `e2e` read build output, so they cannot share a phase with `build`/`lib`.
+// Within a phase they are listed longest-running first.
 const STEPS = [
-  { name: 'format', script: 'format:check' },
   { name: 'lint', script: 'lint' },
-  { name: 'typecheck', script: 'typecheck' },
-  { name: 'types', script: 'types:test' },
-  { name: 'unit', script: 'test:coverage' },
   { name: 'build', script: 'build' },
-  { name: 'lib', script: 'build:lib' },
   { name: 'docs', script: 'docs:check' },
-  {
-    name: 'actions',
-    script: 'check:actions',
-    available: () => hasCommand('actionlint', ['-version']) || hasCommand('docker', ['info']),
-    reason: 'actionlint and docker not installed',
-  },
-  { name: 'unused', script: 'check:unused' },
+  { name: 'unit', script: 'test:coverage' },
   {
     name: 'release',
     script: 'check:release',
     available: () => Boolean(process.env.GITHUB_TOKEN),
     reason: 'no GITHUB_TOKEN',
   },
+  { name: 'types', script: 'types:test' },
+  { name: 'lib', script: 'build:lib' },
   {
     name: 'actions-security',
     command: 'zizmor .github/workflows',
     available: () => hasBinary('zizmor'),
     reason: 'zizmor not installed',
   },
+  { name: 'unused', script: 'check:unused' },
+  { name: 'format', script: 'format:check' },
+  { name: 'typecheck', script: 'typecheck' },
+  {
+    name: 'actions',
+    script: 'check:actions',
+    available: () => hasCommand('actionlint', ['-version']) || hasCommand('docker', ['info']),
+    reason: 'actionlint and docker not installed',
+  },
   { name: 'audit', command: 'npm audit --omit=dev --audit-level=high', slow: true },
+  { name: 'e2e', script: 'test:e2e', phase: 1, slow: true },
   { name: 'package', script: 'check:package', phase: 1, needs: ['lib'] },
   { name: 'size', script: 'check:size', phase: 1, needs: ['lib'] },
-  { name: 'e2e', script: 'test:e2e', phase: 1, slow: true },
 ];
 
 function run(command) {
