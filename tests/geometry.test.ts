@@ -18,6 +18,9 @@ function state(overrides: Partial<CollageFabOwnerState> = {}): CollageFabOwnerSt
     cornerRadius: '50%',
     gap: 16,
     fadeWidth: 12,
+    spread: 'line',
+    radialStart: 0,
+    radialStep: 120,
     count: 3,
     transitionDuration: 400,
     transitionEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
@@ -31,6 +34,17 @@ function state(overrides: Partial<CollageFabOwnerState> = {}): CollageFabOwnerSt
 }
 
 const numbers = (value: string) => (value.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+
+const offsetOf = (translate: string) => {
+  const values = numbers(translate);
+  if (translate.startsWith('translateX(')) {
+    return { x: values[0] ?? 0, y: 0 };
+  }
+  if (translate.startsWith('translateY(')) {
+    return { x: 0, y: values[0] ?? 0 };
+  }
+  return { x: values[0] ?? 0, y: values[1] ?? 0 };
+};
 
 const translateOf = (geometry: ReturnType<typeof getItemGeometry>) =>
   numbers(geometry.translate)[0];
@@ -95,6 +109,64 @@ describe('getGroupGeometry', () => {
 
     expect(align.x).toBe('center');
     expect(extent.width).toBe(2 * 72 + 56);
+  });
+});
+
+describe('getItemGeometry with radial spread', () => {
+  const radial = (overrides: Partial<CollageFabOwnerState> = {}) =>
+    state({ spread: 'radial', count: 4, radialStep: 90, ...overrides });
+
+  it('sends every child one pitch out along its own angle', () => {
+    expect(getItemGeometry(0, radial({ open: true })).translate).toBe('translateY(0px)');
+    expect(getItemGeometry(1, radial({ open: true })).translate).toBe('translateY(-72px)');
+    expect(getItemGeometry(2, radial({ open: true })).translate).toBe('translateX(72px)');
+    expect(getItemGeometry(3, radial({ open: true })).translate).toBe('translateY(72px)');
+  });
+
+  it('spaces the ring evenly from radialStart', () => {
+    const angles = [1, 2, 3].map((index) => {
+      const offset = offsetOf(getItemGeometry(index, radial({ open: true })).translate);
+      return Math.atan2(offset.x, -offset.y) * (180 / Math.PI);
+    });
+
+    expect(angles).toEqual([0, 90, 180]);
+  });
+
+  it('keeps the wedge apex on the stack centre while the child slides out', () => {
+    for (const index of [1, 2, 3]) {
+      const closed = getItemGeometry(index, radial());
+      const opened = getItemGeometry(index, radial({ open: true }));
+      const [closedX, closedY] = numbers(closed.maskPosition);
+      const [openX, openY] = numbers(opened.maskPosition);
+      const translate = offsetOf(opened.translate);
+
+      expect(openX + translate.x).toBeCloseTo(closedX, 6);
+      expect(openY + translate.y).toBeCloseTo(closedY, 6);
+      expect(opened.maskImage).toContain('conic-gradient(from ');
+      expect(numbers(opened.maskSize)).toEqual([200, 200]);
+    }
+  });
+
+  it('fades the last wedge out into the anchor and hands every other one over hard', () => {
+    const stops = (index: number) =>
+      (getItemGeometry(index, radial()).maskImage.match(/(-?[\d.]+)deg/g) ?? []).map((value) =>
+        Number.parseFloat(value),
+      );
+
+    // [from, taper start, taper end, window end]
+    const middle = stops(2);
+    const last = stops(3);
+
+    expect(middle[3]).toBeCloseTo(middle[4], 6);
+    expect(last[3]).toBeLessThan(last[4]);
+  });
+
+  it('leaves the anchor whole and keeps the root a single button wide', () => {
+    expect(getItemGeometry(0, radial()).maskImage).toBe('none');
+    expect(getGroupGeometry(radial())).toEqual({
+      extent: { width: 56, height: 56 },
+      align: { x: 'center', y: 'center' },
+    });
   });
 });
 

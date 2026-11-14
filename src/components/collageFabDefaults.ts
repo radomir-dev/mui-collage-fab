@@ -1,6 +1,7 @@
 import type {
   CollageFabDirection,
   CollageFabSize,
+  CollageFabSpread,
   CollageFabTrigger,
   CollageFabVariant,
 } from './CollageFab';
@@ -16,6 +17,8 @@ export const COLLAGE_FAB_DEFAULTS = {
   variant: 'circular',
   gap: 16,
   fadeWidth: 12,
+  spread: 'line',
+  radialStart: 0,
   trigger: 'hover',
   defaultOpen: false,
   disableClickAway: false,
@@ -27,6 +30,8 @@ export const COLLAGE_FAB_DEFAULTS = {
   variant: CollageFabVariant;
   gap: number;
   fadeWidth: number;
+  spread: CollageFabSpread;
+  radialStart: number;
   trigger: CollageFabTrigger;
   defaultOpen: boolean;
   disableClickAway: boolean;

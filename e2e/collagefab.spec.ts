@@ -105,6 +105,37 @@ test('a mixed group fans along both axes', async ({ page }) => {
   expect(box.height).toBeGreaterThan(100);
 });
 
+test('a radial group rings the anchor without moving it', async ({ page }) => {
+  const group = card(page, 'Radial').locator('.MuiCollageFab-root');
+  await group.scrollIntoViewIfNeeded();
+
+  const slices = group.locator('.MuiCollageFab-item');
+  const count = await slices.count();
+  const centre = async (index: number) => {
+    const box = (await slices.nth(index).boundingBox())!;
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  };
+
+  await expect(slices.first()).toHaveCSS('mask-image', 'none');
+  const closed = await centre(0);
+
+  await group.hover();
+  await page.waitForTimeout(700);
+
+  const opened = await centre(0);
+  expect(opened.x).toBeCloseTo(closed.x, 0);
+  expect(opened.y).toBeCloseTo(closed.y, 0);
+
+  for (let index = 1; index < count; index += 1) {
+    const point = await centre(index);
+    expect(Math.hypot(point.x - opened.x, point.y - opened.y)).toBeCloseTo(60, 0);
+    const maskImage = await slices
+      .nth(index)
+      .evaluate((element) => getComputedStyle(element).maskImage);
+    expect(maskImage).toContain('conic-gradient');
+  }
+});
+
 test('collapsed slices leave the accessibility tree and the tab order', async ({ page }) => {
   const group = card(page, 'left').locator('.MuiCollageFab-root');
   const slices = group.locator('.MuiCollageFab-item');
