@@ -1,6 +1,6 @@
 {
   "name": "mui-collage-fab",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Material UI floating action button that unfolds a stack of overlapping Fab circles into a row.",
   "license": "MIT",
   "author": "Radomir Wojtera",
@@ -74,7 +74,10 @@
     "check:size": "size-limit",
     "doctor": "node scripts/doctor.mjs",
     "doctor:fast": "node scripts/doctor.mjs --fast",
-    "check:actions": "node scripts/actionlint.mjs"
+    "check:actions": "node scripts/actionlint.mjs",
+    "check:unused": "knip",
+    "check:release": "semantic-release --dry-run --no-ci",
+    "check:actions-security": "zizmor .github/workflows"
   },
   "dependencies": {
     "@mui/utils": "^9.5.0"
@@ -107,6 +110,7 @@
     "@types/node": "^22.20.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^10.14.0",
@@ -127,10 +131,12 @@
     "semantic-release": "^25.0.9",
     "size-limit": "^14.3.0",
     "typedoc": "^0.28.20",
-    "typescript": "~6.0.3",
+    "typescript": "npm:@typescript/typescript6@^6.0.2",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.4",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.0",
+    "fast-check": "^4.5.0",
+    "knip": "^6.20.0"
   },
   "size-limit": [
     {
