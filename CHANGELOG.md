@@ -1,3 +1,10 @@
+## [0.1.4](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.3...v0.1.4) (2026-11-14)
+
+
+### Bug Fixes
+
+* **playground:** pin the group to the edge it fans from ([#48](https://github.com/radomir-dev/mui-collage-fab/issues/48)) ([930dd31](https://github.com/radomir-dev/mui-collage-fab/commit/930dd31977be9cee07c8c1547c5ddb413b8583e4))
+
 ## [0.1.3](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.2...v0.1.3) (2026-11-14)
 
 
