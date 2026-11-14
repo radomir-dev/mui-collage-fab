@@ -1,3 +1,10 @@
+## [0.1.3](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.2...v0.1.3) (2026-11-14)
+
+
+### Bug Fixes
+
+* **playground:** keep the anchor in place when gap changes ([#36](https://github.com/radomir-dev/mui-collage-fab/issues/36)) ([92327cf](https://github.com/radomir-dev/mui-collage-fab/commit/92327cf2a1f9d9280e6583df7bf3808aea2b5dac))
+
 ## [0.1.2](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.1...v0.1.2) (2026-11-14)
 
 
