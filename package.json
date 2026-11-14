@@ -82,6 +82,7 @@
     "doctor:fast": "node scripts/doctor.mjs --fast",
     "check:actions": "node scripts/actionlint.mjs",
     "check:node": "node scripts/check-node.mjs",
+    "check:deps": "depcruise src --config .dependency-cruiser.mjs",
     "check:unused": "knip",
     "check:release": "semantic-release --dry-run --no-ci",
     "check:actions-security": "zizmor .github/workflows"
@@ -119,6 +120,7 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
+    "dependency-cruiser": "^18.7.2",
     "fast-check": "^4.5.0",
     "jest-axe": "^11.0.0",
     "jsdom": "^31.0.1",

@@ -185,6 +185,7 @@ npm run dev
 | `npm run lint`                   | Oxlint, type-aware, with hooks and jsx-a11y rules.                       |
 | `npm run format:check`           | Oxfmt check. `npm run format` rewrites in place.                         |
 | `npm run check:node`             | Assert `@types/node`, `mise.toml` and `devEngines` share a major.        |
+| `npm run check:deps`             | Dependency-cruiser: cycles, orphans and library/site imports.            |
 | `npm run check:unused`           | Knip: unused files, exports and dependencies.                            |
 | `npm run check:release`          | `semantic-release --dry-run`, validating the release config.             |
 | `npm run check:actions-security` | Zizmor audit of the workflows.                                           |
@@ -196,7 +197,8 @@ npm run dev
 `npm run doctor` (listr2) runs the checks in sequence and keeps going after a
 failure, so one pass reports everything that is broken:
 
-1. `format:check`, `lint`, `typecheck` — style and static analysis.
+1. `format:check`, `lint`, `typecheck`, `check:deps` — style, static analysis and the
+   dependency graph.
 2. `types:test` — the public prop unions and slot overrides, pinned by type tests.
 3. `test:coverage` — Vitest with coverage thresholds of 85 statements / 75 branches.
 4. `build`, `build:lib` — demo and library bundles.
@@ -210,12 +212,14 @@ Property tests (`fast-check`, `tests/geometry.property.test.ts`) generate sizes,
 fade widths, counts and directions and assert the geometry invariants rather than
 enumerating cases: one pitch of translation per slice, a cut line pinned in container
 space, and a mask window wide enough to cover the fan. `check:unused` (knip) catches dead
-files, exports and dependencies; `check:release` loads every semantic-release plugin
-through `--dry-run`; the e2e suite also runs a Pixel-class mobile project with touch
-gesture specs, and zizmor audits the workflows themselves in CI.
+files, exports and dependencies; `check:deps` (dependency-cruiser) rejects runtime cycles,
+orphan modules and imports that reach from the published library into demo code;
+`check:release` loads every semantic-release plugin through `--dry-run`; the e2e suite
+also runs a Pixel-class mobile project with touch gesture specs, and zizmor audits the
+workflows themselves in CI.
 
-`--fast` drops `test:e2e` and `audit`, `--only=lint,unit` runs a subset. Each failed
-step keeps its output in `node_modules/.cache/doctor/<step>.log`. CI runs
+`--fast` drops `test:e2e` and `audit`, `--only=lint,unit` runs a subset. Each failed step
+keeps its output in `node_modules/.cache/doctor/<step>.log`. CI runs
 `npm run doctor -- --fast` plus a separate e2e job covering chromium, firefox, webkit and
 a Pixel-class mobile viewport, `zizmor` on the workflows, and `dependency-review` on pull
 requests.
