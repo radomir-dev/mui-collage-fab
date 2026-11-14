@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { apiDocs } from './scripts/vite-plugin-api-docs.ts';
-import pkg from './package.json';
+import pkg from './package.json' with { type: 'json' };
 
 const repoUrl = pkg.repository.url.replace(/^git\+/, '').replace(/\.git$/, '');
 
