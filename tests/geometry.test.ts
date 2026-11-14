@@ -9,7 +9,7 @@ import type { CollageFabDirection, CollageFabOwnerState } from '../src/component
 const DIRECTIONS: CollageFabDirection[] = ['left', 'right', 'up', 'down'];
 
 function state(overrides: Partial<CollageFabOwnerState> = {}): CollageFabOwnerState {
-  return {
+  const base = {
     open: false,
     direction: 'left',
     trigger: 'hover',
@@ -22,6 +22,11 @@ function state(overrides: Partial<CollageFabOwnerState> = {}): CollageFabOwnerSt
     transitionDuration: 400,
     transitionEasing: 'cubic-bezier(0.4, 0, 0.2, 1)',
     ...overrides,
+  } as const;
+
+  return {
+    ...base,
+    directions: overrides.directions ?? Array.from({ length: base.count }, () => base.direction),
   };
 }
 
@@ -72,6 +77,58 @@ describe('getGroupGeometry', () => {
 
   it('keeps the box a single button for one child', () => {
     expect(getGroupGeometry(state({ count: 1 })).extent).toEqual({ width: 56, height: 56 });
+  });
+
+  it('grows both axes when the children fan over both', () => {
+    const { extent, align } = getGroupGeometry(
+      state({ count: 3, directions: ['left', 'left', 'down'] }),
+    );
+
+    expect(extent).toEqual({ width: 128, height: 128 });
+    expect(align).toEqual({ x: 'end', y: 'start' });
+  });
+
+  it('centres an axis the children fan along in both directions', () => {
+    const { extent, align } = getGroupGeometry(
+      state({ count: 3, directions: ['right', 'right', 'left'] }),
+    );
+
+    expect(align.x).toBe('center');
+    expect(extent.width).toBe(2 * 72 + 56);
+  });
+});
+
+describe('getItemGeometry with per-child directions', () => {
+  const directions: CollageFabDirection[] = ['left', 'right', 'down', 'down'];
+
+  it('gives every direction its own leg, one pitch apart', () => {
+    expect(getItemGeometry(1, state({ directions, open: true })).translate).toBe(
+      'translateX(72px)',
+    );
+    expect(getItemGeometry(2, state({ directions, open: true })).translate).toBe(
+      'translateY(72px)',
+    );
+    expect(getItemGeometry(3, state({ directions, open: true })).translate).toBe(
+      'translateY(144px)',
+    );
+  });
+
+  it('mirrors the cut for a leg on the other side of the anchor', () => {
+    const directions: CollageFabDirection[] = ['right', 'right', 'left', 'left'];
+    const mask = (index: number) => getItemGeometry(index, state({ count: 4, directions }));
+
+    // Both legs cut the collapsed disc at the same band, from opposite edges, so the
+    // group still tiles into `count - 1` slices with the anchor underneath.
+    expect(numbers(mask(1).maskPosition)[0]).toBeCloseTo(numbers(mask(3).maskPosition)[0], 6);
+    expect(mask(1).maskImage).toContain('transparent 0px');
+    expect(mask(3).maskImage).toContain('#000 0px');
+    expect(numbers(mask(1).maskPosition)[0]).not.toBeCloseTo(numbers(mask(2).maskPosition)[0], 6);
+  });
+
+  it('falls back to direction for children past the end of the list', () => {
+    const geometry = getItemGeometry(2, state({ directions: ['up'], direction: 'up', open: true }));
+
+    expect(geometry.translate).toBe('translateY(-144px)');
   });
 });
 

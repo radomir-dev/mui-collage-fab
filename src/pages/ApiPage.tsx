@@ -48,6 +48,7 @@ const BEHAVIOR_NOTES = [
   'While collapsed, the item wrappers are aria-hidden and made non-focusable, so the collapsed slices leave both the tab order and the accessibility tree.',
   "Every child is forced to box-shadow: none, 100% size and the wrapper's corner radius, so the root owns the single silhouette and drop shadow.",
   'With a single child no mask is applied, and the component behaves like a plain Fab.',
+  'directions gives every child its own direction, in child order; the anchor stays put and the children sharing a direction fan one pitch apart.',
   'direction is physical, not logical: it is not mirrored under RTL.',
 ];
 
@@ -346,6 +347,15 @@ export function ApiPage() {
         order of the color stops flips.
       </Typography>
 
+      <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
+        <InlineCode>directions</InlineCode> takes one entry per child, in child order: entry 0
+        belongs to the anchor and never moves, entry n to the n-th child, and a missing entry falls
+        back to <InlineCode>direction</InlineCode>. Children that share a direction fan one pitch
+        apart, so one group can split into a row and a column. Legs on opposite sides of the anchor
+        mirror the same collapsed cut, which splits the disc between them and leaves the anchor
+        underneath with no band of its own.
+      </Typography>
+
       <SectionHeading>Trigger</SectionHeading>
       <DocTable columns={valueColumns} rows={triggerRows} minWidth={520} />
 
@@ -378,12 +388,12 @@ export function ApiPage() {
         }}
       >
         <Typography variant="subtitle2" fontWeight="bold" color="warning.light" sx={{ mb: 1 }}>
-          Pin the anchor edge in the parent
+          Pin the anchor corner in the parent
         </Typography>
         <Typography color="grey.300" sx={{ mb: 2 }}>
-          The root animates its own main-axis extent from a single button to the full row. If the
-          parent lets it sit at the start of the axis, the group grows in place instead of fanning
-          out. Pin the anchor edge in the parent:
+          The root animates its own extent from a single button to the bounding box of the fan. If
+          the parent lets it sit at the start of the axis, the group grows in place instead of
+          fanning out. Pin the anchor&apos;s corner in the parent:
         </Typography>
         <Box component="ul" sx={{ pl: 3, m: 0 }}>
           {[
@@ -402,6 +412,11 @@ export function ApiPage() {
             </Typography>
           ))}
         </Box>
+        <Typography color="grey.300" sx={{ mt: 2 }}>
+          An axis the children fan along in both directions is centred on the anchor instead, so
+          centre that axis rather than pinning an edge. A mixed group pins the corner its directions
+          leave free.
+        </Typography>
       </Box>
 
       <SectionHeading>Usage</SectionHeading>
