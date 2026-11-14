@@ -15,11 +15,13 @@ import {
 import docs from 'virtual:api-docs';
 import type {
   CollageFabDirection,
+  CollageFabSpread,
   CollageFabTrigger,
   CollageFabVariant,
 } from '../components/CollageFab';
 import basicUsage from './examples/basic-usage.tsx?raw';
 import controlledUsage from './examples/controlled-usage.tsx?raw';
+import radialUsage from './examples/radial-usage.tsx?raw';
 
 const DIRECTIONS: Record<CollageFabDirection, { edge: string; axis: string; expand: string }> = {
   left: { edge: 'Right edge', axis: 'Horizontal', expand: 'Leftward (negative X)' },
@@ -32,6 +34,12 @@ const VARIANTS: Record<CollageFabVariant, string> = {
   circular: 'Clips each slice to a circle.',
   rounded: 'Clips each slice to a rounded square; the 25% corner radius scales with size.',
   square: 'Clips each slice to a sharp-cornered square.',
+};
+
+const SPREADS: Record<CollageFabSpread, string> = {
+  line: 'Fans the children along their directions, one pitch apart.',
+  radial:
+    'Sends the children onto a ring one pitch around the anchor, each cut by a wedge that tiles the collapsed button.',
 };
 
 const TRIGGERS: Record<CollageFabTrigger, string> = {
@@ -49,6 +57,7 @@ const BEHAVIOR_NOTES = [
   "Every child is forced to box-shadow: none, 100% size and the wrapper's corner radius, so the root owns the single silhouette and drop shadow.",
   'With a single child no mask is applied, and the component behaves like a plain Fab.',
   'directions gives every child its own direction, in child order; the anchor stays put and the children sharing a direction fan one pitch apart.',
+  'spread="radial" rings the children around the anchor at one pitch; direction and directions are ignored.',
   'direction is physical, not logical: it is not mirrored under RTL.',
 ];
 
@@ -274,6 +283,14 @@ const triggerRows: DocRow[] = docs.unions.trigger.map((trigger) => ({
   },
 }));
 
+const spreadRows: DocRow[] = docs.unions.spread.map((spread) => ({
+  key: spread,
+  cells: {
+    name: `'${spread}'`,
+    description: SPREADS[spread],
+  },
+}));
+
 export function ApiPage() {
   return (
     <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -290,7 +307,6 @@ export function ApiPage() {
         Reference for the exported <strong>CollageFab</strong> component: its props, slots,
         ownerState and runtime behavior.
       </Typography>
-
       <Typography variant="h4" fontWeight="bold" color="white" gutterBottom>
         CollageFab
       </Typography>
@@ -301,12 +317,9 @@ export function ApiPage() {
         This page is generated from the component&apos;s TypeScript source and TSDoc while this site
         builds. Install the package, then import it from <InlineCode>mui-collage-fab</InlineCode>.
       </Typography>
-
       <Divider sx={{ mb: 5 }} />
-
       <SectionHeading>Props</SectionHeading>
       <DocTable columns={propColumns} rows={propRows} />
-
       <SectionHeading>variant</SectionHeading>
       <DocTable columns={valueColumns} rows={variantRows} minWidth={520} />
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
@@ -315,10 +328,8 @@ export function ApiPage() {
         example <InlineCode>{'{ borderRadius: 8 }'}</InlineCode>. There is no separate radius prop,
         and every child inherits the wrapper radius, so the whole stack keeps a single silhouette.
       </Typography>
-
       <SectionHeading>Slots</SectionHeading>
       <DocTable columns={slotColumns} rows={slotRows} minWidth={520} />
-
       <SectionHeading>ownerState</SectionHeading>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
         <InlineCode>CollageFabOwnerState</InlineCode> is passed to the root slot and to every
@@ -333,7 +344,6 @@ export function ApiPage() {
         Its <InlineCode>geometry</InlineCode> field carries the computed slice:
       </Typography>
       <DocTable columns={fieldColumns} rows={geometryRows} minWidth={620} />
-
       <SectionHeading>Direction</SectionHeading>
       <DocTable columns={directionColumns} rows={directionRows} minWidth={560} />
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 1.5 }}>
@@ -346,7 +356,6 @@ export function ApiPage() {
         and <InlineCode>to bottom</InlineCode> for the vertical ones in all four cases; only the
         order of the color stops flips.
       </Typography>
-
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
         <InlineCode>directions</InlineCode> takes one entry per child, in child order: entry 0
         belongs to the anchor and never moves, entry n to the n-th child, and a missing entry falls
@@ -355,10 +364,33 @@ export function ApiPage() {
         mirror the same collapsed cut, which splits the disc between them and leaves the anchor
         underneath with no band of its own.
       </Typography>
-
+      <SectionHeading>Spread</SectionHeading>
+      <DocTable columns={valueColumns} rows={spreadRows} minWidth={520} />
+      <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
+        <InlineCode>'radial'</InlineCode> puts every child on a ring of radius{' '}
+        <InlineCode>size + gap</InlineCode> — the same pitch the line mode uses, so there is no
+        radius prop. <InlineCode>radialStart</InlineCode> rotates the ring and{' '}
+        <InlineCode>radialStep</InlineCode> sets the angle between two ring children; it already
+        spaces them evenly at <InlineCode>360 / (count - 1)</InlineCode>, so a narrower fan is just
+        a smaller step.
+      </Typography>
+      <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
+        The anchor never joins the ring. It keeps its place at the centre and stays unclipped, which
+        is what gives the collapsed group its opaque base: every wedge fades into that base along
+        its leading edge, and the last one fades back into it, so the collapsed stack has no hard
+        seam. Past eight children at the default size the buttons stop fitting around the circle and
+        the wedges start clipping the overlap.
+      </Typography>
+      <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
+        A ring keeps the root box a single button wide and paints outside it, which is what holds
+        the anchor on one pixel while the children travel, so leave room around the group rather
+        than pinning an edge. In radial mode <InlineCode>direction</InlineCode> and{' '}
+        <InlineCode>directions</InlineCode> are unused. Angles are physical the same way directions
+        are: <InlineCode>radialStart</InlineCode> is measured clockwise from twelve o&apos;clock and
+        is not mirrored under RTL.
+      </Typography>
       <SectionHeading>Trigger</SectionHeading>
       <DocTable columns={valueColumns} rows={triggerRows} minWidth={520} />
-
       <SectionHeading>Behavior</SectionHeading>
       <Box component="ul" sx={{ pl: 3, mb: 6, maxWidth: 780 }}>
         {BEHAVIOR_NOTES.map((note) => (
@@ -372,7 +404,6 @@ export function ApiPage() {
           </Typography>
         ))}
       </Box>
-
       <SectionHeading>Caveat</SectionHeading>
       <Box
         sx={{
@@ -418,12 +449,10 @@ export function ApiPage() {
           leave free.
         </Typography>
       </Box>
-
       <SectionHeading>Usage</SectionHeading>
       <Box tabIndex={0} component="pre" sx={{ ...codeBlockSx, mb: 6 }}>
         <code>{basicUsage}</code>
       </Box>
-
       <SectionHeading>Controlled usage</SectionHeading>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
         Pass <InlineCode>open</InlineCode> to own the state. The internal transitions still fire{' '}
@@ -432,6 +461,14 @@ export function ApiPage() {
       </Typography>
       <Box tabIndex={0} component="pre" sx={codeBlockSx}>
         <code>{controlledUsage}</code>
+      </Box>
+      <SectionHeading>Radial usage</SectionHeading>
+      <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
+        Set <InlineCode>spread=&quot;radial&quot;</InlineCode> to send the children onto a ring
+        around the anchor.
+      </Typography>
+      <Box tabIndex={0} component="pre" sx={codeBlockSx}>
+        <code>{radialUsage}</code>
       </Box>
     </Container>
   );
