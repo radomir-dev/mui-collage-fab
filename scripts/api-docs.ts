@@ -169,8 +169,10 @@ function typeText(type: SomeType | undefined, context: TypeContext, depth = 0): 
       return type.types.map((member) => typeText(member, context, depth)).join(' | ');
     case 'intersection':
       return type.types.map((member) => typeText(member, context, depth)).join(' & ');
-    case 'array':
-      return `${typeText(type.elementType, context, depth)}[]`;
+    case 'array': {
+      const element = typeText(type.elementType, context, depth);
+      return element.includes(' | ') ? `(${element})[]` : `${element}[]`;
+    }
     case 'reference':
       return referenceText(type, context, depth);
     case 'reflection':
