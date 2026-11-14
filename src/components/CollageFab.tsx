@@ -84,8 +84,10 @@ export interface CollageFabItemSlotPropsOverrides {}
 export interface CollageFabOwnerState {
   /** Whether the group is currently expanded. */
   open: boolean;
-  /** The resolved fan-out direction. */
+  /** The resolved fan-out direction used by every child without a `directions` entry. */
   direction: CollageFabDirection;
+  /** The resolved direction of each child, in child order. */
+  directions: CollageFabDirection[];
   /** The resolved pointer trigger mode. */
   trigger: CollageFabTrigger;
   /** The button diameter in pixels, after resolving the named size. */
@@ -163,7 +165,7 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   /**
    * The buttons to stack. Every valid element is wrapped in a masked slot shaped
    * by `variant`. Order matters: index 0 is the anchor, the rest fan out along
-   * `direction`.
+   * `direction` or their own entry in `directions`.
    */
   children?: React.ReactNode;
   /**
@@ -171,6 +173,12 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    * matches the original right-anchored behaviour.
    */
   direction?: CollageFabDirection;
+  /**
+   * A direction per child, in child order, so one group can fan over several axes.
+   * Entry 0 belongs to the anchor and has no visible effect; an entry that is
+   * missing or past the end of the list falls back to `direction`.
+   */
+  directions?: CollageFabDirection[];
   /**
    * Diameter of every button. Named sizes resolve to small 40px, medium 48px,
    * large 56px; numeric values are used verbatim.
@@ -289,8 +297,16 @@ const CollageFabItemRoot = styled('div', {
   const { size, index, geometry, cornerRadius, transitionDuration, transitionEasing } = ownerState;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
-    ...(align.x === 'end' ? { right: 0 } : { left: 0 }),
-    ...(align.y === 'end' ? { bottom: 0 } : { top: 0 }),
+    ...(align.x === 'end'
+      ? { right: 0 }
+      : align.x === 'center'
+        ? { left: '50%', marginLeft: -size / 2 }
+        : { left: 0 }),
+    ...(align.y === 'end'
+      ? { bottom: 0 }
+      : align.y === 'center'
+        ? { top: '50%', marginTop: -size / 2 }
+        : { top: 0 }),
   };
   const timing = getTransitionTiming(transitionDuration, transitionEasing);
 
@@ -410,6 +426,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
     const {
       children,
       direction = COLLAGE_FAB_DEFAULTS.direction,
+      directions: directionsProp,
       size = COLLAGE_FAB_DEFAULTS.size,
       variant = COLLAGE_FAB_DEFAULTS.variant,
       gap = COLLAGE_FAB_DEFAULTS.gap,
@@ -441,10 +458,15 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       [children],
     );
     const count = childArray.length;
+    const directions = React.useMemo(
+      () => childArray.map((_, index) => directionsProp?.[index] ?? direction),
+      [childArray, directionsProp, direction],
+    );
 
     const ownerState: CollageFabOwnerState = {
       open,
       direction,
+      directions,
       trigger,
       size: resolveSize(size),
       variant,

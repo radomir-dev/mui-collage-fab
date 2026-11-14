@@ -32,6 +32,7 @@ function ownerState(
   return {
     open,
     direction,
+    directions: Array.from({ length: count }, () => direction),
     trigger: 'hover',
     size,
     variant: 'circular',

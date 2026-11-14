@@ -84,6 +84,27 @@ test('expanding moves the slice and its mask by the same pitch, in opposite dire
   }
 });
 
+test('a mixed group fans along both axes', async ({ page }) => {
+  const group = card(page, 'Left and down').locator('.MuiCollageFab-root');
+  await group.scrollIntoViewIfNeeded();
+
+  const slices = group.locator('.MuiCollageFab-item');
+  await group.hover();
+  await page.waitForTimeout(700);
+
+  const left = await readSlice(slices.nth(1));
+  const down = await readSlice(slices.nth(3));
+
+  expect(left.translateX).toBeLessThan(-50);
+  expect(left.translateY).toBe(0);
+  expect(down.translateY).toBeGreaterThan(50);
+  expect(down.translateX).toBe(0);
+
+  const box = (await group.boundingBox())!;
+  expect(box.width).toBeGreaterThan(150);
+  expect(box.height).toBeGreaterThan(100);
+});
+
 test('collapsed slices leave the accessibility tree and the tab order', async ({ page }) => {
   const group = card(page, 'left').locator('.MuiCollageFab-root');
   const slices = group.locator('.MuiCollageFab-item');
