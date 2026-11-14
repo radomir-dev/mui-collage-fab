@@ -6,9 +6,9 @@
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | <img src="https://raw.githubusercontent.com/radomir-dev/mui-collage-fab/main/docs/collagefab-collapsed.png" alt="Three CollageFab buttons collapsed into a single stacked circle" height="104" /> | <img src="https://raw.githubusercontent.com/radomir-dev/mui-collage-fab/main/docs/collagefab-expanded.png" alt="Three CollageFab buttons fanned out into a horizontal row" height="104" /> |
 
-A Material UI floating action button that behaves like a collapsed stack of overlapping circles. Collapsed, a set of `Fab`s sits perfectly stacked and reads as a single button with soft gradient slices at the edges. On hover (mouse) or tap (touch), the parent expands its main-axis extent and the buttons fan out into a row while their CSS masks slide in lockstep with the movement — so the unfold reads as one continuous morph instead of a pop.
+A Material UI floating action button that behaves like a collapsed stack of overlapping circles. Collapsed, a set of `Fab`s sits perfectly stacked and reads as a single button with soft gradient slices at the edges. On hover (mouse) or tap (touch), the parent grows into the box its children travel through and they fan out — into a row, into two axes with `directions`, or onto a ring with `spread="radial"` — while their CSS masks slide in lockstep with the movement, so the unfold reads as one continuous morph instead of a pop.
 
-The trick is that each child is a full circle clipped by a static linear-gradient mask. As the element translates along the main axis, the `mask-position` is translated back by the same amount, keeping the fade boundary fixed in container space. Because the fade is a gradient rather than a hard clip, the parent's `filter: drop-shadow(...)` traces the soft edges cleanly.
+The trick is that each child is a full circle clipped by a static mask that the item slides through: a linear-gradient band for a row, a conic-gradient wedge whose apex sits on the anchor for a ring. As the element translates, the `mask-position` is translated back by the same amount, keeping the cut line fixed in container space. Because the cut is a gradient rather than a hard clip, the parent's `filter: drop-shadow(...)` traces the soft edges cleanly.
 
 Not affiliated with or endorsed by MUI.
 
@@ -130,13 +130,15 @@ const theme = createTheme({
 
 ## Notes
 
-1. **The parent must pin the anchor edge.** The root animates its own main-axis extent, so it only fans out if its parent keeps the anchor edge fixed: `justify-content: flex-end` for `direction="left"`, `flex-start` for `"right"`, `align-items: flex-end` for `"up"`, `flex-start` for `"down"`. Otherwise the root grows in place and pushes surrounding content instead of fanning out.
+1. **The parent must pin the anchor.** The root animates its own extent, so it only fans out if its parent keeps the anchor still: the corner the fan leaves behind (`justify-content: flex-end` for `direction="left"`, `flex-start` for `"right"`, `align-items: flex-end` for `"up"`, `flex-start` for `"down"`), or the centre for an axis that fans both ways. A radial group keeps its single-button box and paints the ring outside it, so it only needs room around it. Otherwise the root grows in place and pushes surrounding content instead of fanning out.
 2. **Each child is forced to `box-shadow: none` and 100% size**, so the parent owns the global shadow shape. Pass visual styles via each child's `sx`; the component overrides sizing and shadow only. Overriding that reset requires `slotProps.item.sx['& > *']` with `!important`.
 3. **The single `drop-shadow` lives on the root**, because a filter traces the soft mask edges while a `box-shadow` would trace the wrapper rectangles. Setting `overflow: hidden` on the root via `sx` clips the fan-out.
 4. **Shapes.** `variant` covers the three common cases; children inherit the wrapper's corner radius, so the shape applies to the whole group rather than to each button's own `Fab` default. Any other radius is reachable with `slotProps.item.sx`.
 5. **Collapsed slices are hidden from assistive technology.** While collapsed, the item wrappers are `aria-hidden` and made non-focusable, so they leave the tab order and the accessibility tree. The root stays focusable: Enter or Space opens the group, focus moves to the first item, and Escape closes it and returns focus to the root.
 6. **With a single child no mask is applied** — it behaves like a plain `Fab`.
 7. **`direction` is physical, not logical.** It is not mirrored under RTL; right-to-left layouts should set `direction="left"` explicitly.
+8. **`directions` gives each child its own direction**, in child order; children that share one fan a pitch apart, so a group can split into a row and a column.
+9. **`spread="radial"` rings the children around the anchor** at one pitch, with `radialStart` rotating the ring and `radialStep` (default `360 / (count - 1)`) spacing the ring children evenly. The anchor stays at the centre and never moves: a wedge cuts each child so it emerges as a petal, and the anchor is the opaque base the wedges fade into.
 
 ## Demo site
 
@@ -162,7 +164,9 @@ the cut line stays pinned while the button travels. `tests/behaviour.test.tsx` r
 component in jsdom for triggers, keyboard flow, controlled state and click-away.
 `e2e/collagefab.spec.ts` is the browser-level check, because jsdom cannot compute masks:
 it reads the real `transform` and `mask-position` after hovering and verifies they move by
-the same pitch in opposite directions.
+the same pitch in opposite directions, and checks the mixed-axis and radial layouts.
+`e2e/conic-mask.spec.ts` proves the compensated conic mask clips the same in chromium,
+firefox and webkit against a single shared screenshot baseline.
 
 ## Development
 
