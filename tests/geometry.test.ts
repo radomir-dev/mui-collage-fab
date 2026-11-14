@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { getItemGeometry, resolveSize } from '../src/components/collageFabGeometry';
+import {
+  getGroupGeometry,
+  getItemGeometry,
+  resolveSize,
+} from '../src/components/collageFabGeometry';
 import type { CollageFabDirection, CollageFabOwnerState } from '../src/components/CollageFab';
 
 const DIRECTIONS: CollageFabDirection[] = ['left', 'right', 'up', 'down'];
@@ -39,6 +43,35 @@ describe('resolveSize', () => {
   it('maps every named size onto a larger diameter', () => {
     expect(resolveSize('medium')).toBeGreaterThan(resolveSize('small'));
     expect(resolveSize('large')).toBeGreaterThan(resolveSize('medium'));
+  });
+});
+
+describe('getGroupGeometry', () => {
+  it('grows along the direction the children travel and stays one button deep across it', () => {
+    for (const direction of DIRECTIONS) {
+      const { extent } = getGroupGeometry(state({ direction }));
+      const horizontal = direction === 'left' || direction === 'right';
+
+      expect(horizontal ? extent.width : extent.height).toBe(3 * 56 + 2 * 16);
+      expect(horizontal ? extent.height : extent.width).toBe(56);
+    }
+  });
+
+  it('puts the anchor against the edge the group fans away from', () => {
+    expect(getGroupGeometry(state({ direction: 'left' })).align).toEqual({ x: 'end', y: 'start' });
+    expect(getGroupGeometry(state({ direction: 'right' })).align).toEqual({
+      x: 'start',
+      y: 'start',
+    });
+    expect(getGroupGeometry(state({ direction: 'up' })).align).toEqual({ x: 'start', y: 'end' });
+    expect(getGroupGeometry(state({ direction: 'down' })).align).toEqual({
+      x: 'start',
+      y: 'start',
+    });
+  });
+
+  it('keeps the box a single button for one child', () => {
+    expect(getGroupGeometry(state({ count: 1 })).extent).toEqual({ width: 56, height: 56 });
   });
 });
 
