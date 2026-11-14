@@ -37,6 +37,7 @@ const STEPS = [
   },
   { name: 'node', script: 'check:node' },
   { name: 'unused', script: 'check:unused' },
+  { name: 'deps', script: 'check:deps' },
   { name: 'format', script: 'format:check' },
   { name: 'typecheck', script: 'typecheck' },
   {
