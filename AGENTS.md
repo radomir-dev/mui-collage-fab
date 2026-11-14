@@ -24,3 +24,5 @@ Then fetch it into a `.slim/` worktree and work there.
 Write PR descriptions like a lazy but talented developer who cannot be bothered: a sentence or two on what changed and why, then stop. No headings, no checklists, no bullet lists, no restating the diff — the code and the commits carry the detail.
 
 Open the pull request as a draft as soon as the branch has its first commit, even if the work is barely started, and keep pushing to it as the work lands. Mark it ready only when it is finished.
+
+Title the pull request as a Conventional Commits message (`type(scope): subject`), because `pr-title` in CI rejects anything else.
