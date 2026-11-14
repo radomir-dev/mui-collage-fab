@@ -43,6 +43,11 @@ jobs:
           advanced-security: false
           online-audits: false
       - run: npm run doctor -- --fast
+      - name: Run the published bundle on the engines floor
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 18
+      - run: node -e "require('./dist-lib/index.cjs')"
 
   e2e:
     name: e2e

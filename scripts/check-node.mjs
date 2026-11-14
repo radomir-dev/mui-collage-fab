@@ -8,19 +8,24 @@ const majorOf = (version) => {
   return match ? Number(match[0]) : null;
 };
 
-const supported = majorOf(pkg.engines?.node);
+const floor = majorOf(pkg.engines?.node);
+const dev = majorOf(pkg.devEngines?.runtime?.version);
+const miseMajor = majorOf(mise.match(/^node\s*=\s*"([^"]+)"/m)?.[1]);
 const types = majorOf(pkg.devDependencies?.['@types/node']);
-const dev = majorOf(mise.match(/^node\s*=\s*"([^"]+)"/m)?.[1]);
 
 const problems = [
-  supported ? null : 'package.json has no engines.node floor',
+  floor ? null : 'package.json has no engines.node floor',
+  dev ? null : 'package.json has no devEngines.runtime pin',
+  miseMajor ? null : 'mise.toml has no node pin',
   types ? null : 'package.json has no @types/node dependency',
-  dev ? null : 'mise.toml has no node pin',
-  supported && types && supported !== types
-    ? `@types/node targets Node ${types}, but engines.node supports Node ${supported}`
+  dev && types && dev !== types
+    ? `@types/node targets Node ${types}, but devEngines requires Node ${dev}`
     : null,
-  supported && dev && supported !== dev
-    ? `mise.toml pins Node ${dev}, but engines.node supports Node ${supported}`
+  dev && miseMajor && dev !== miseMajor
+    ? `mise.toml pins Node ${miseMajor}, but devEngines requires Node ${dev}`
+    : null,
+  floor && dev && floor > dev
+    ? `engines.node supports Node ${floor}, newer than the Node ${dev} the repo develops on`
     : null,
 ].filter(Boolean);
 

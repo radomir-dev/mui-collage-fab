@@ -19,7 +19,8 @@ npm install mui-collage-fab @mui/material @emotion/react @emotion/styled
 ```
 
 `react`, `react-dom`, `@mui/material` and the two emotion packages are peer
-dependencies, so the package never ships its own copy of React or MUI.
+dependencies, so the package never ships its own copy of React or MUI. The
+published bundle targets ES2020 and runs on Node.js 18 or newer when server rendered.
 
 ## Usage
 
@@ -161,7 +162,7 @@ the same pitch in opposite directions.
 
 ## Development
 
-Requires Node.js 22.13 or newer. The development toolchain is pinned in `mise.toml`.
+Requires Node.js 22.12 or newer. The development toolchain is pinned in `mise.toml`.
 
 ```bash
 npm install
@@ -183,7 +184,7 @@ npm run dev
 | `npm run check:size`             | Enforce the size-limit budgets for `dist-lib`.                           |
 | `npm run lint`                   | Oxlint, type-aware, with hooks and jsx-a11y rules.                       |
 | `npm run format:check`           | Oxfmt check. `npm run format` rewrites in place.                         |
-| `npm run check:node`             | Assert `@types/node`, `mise.toml` and `engines.node` share a major.      |
+| `npm run check:node`             | Assert `@types/node`, `mise.toml` and `devEngines` share a major.        |
 | `npm run check:unused`           | Knip: unused files, exports and dependencies.                            |
 | `npm run check:release`          | `semantic-release --dry-run`, validating the release config.             |
 | `npm run check:actions-security` | Zizmor audit of the workflows.                                           |
