@@ -181,8 +181,8 @@ npm run dev
 | `npm run types:test`             | Type-check the public API surface (`expectTypeOf` + `@ts-expect-error`). |
 | `npm run check:package`          | `publint`, `attw --pack` and a tarball content assertion.                |
 | `npm run check:size`             | Enforce the size-limit budgets for `dist-lib`.                           |
-| `npm run lint`                   | ESLint, type-aware, with hooks and jsx-a11y rules.                       |
-| `npm run format:check`           | Prettier check. `npm run format` rewrites in place.                      |
+| `npm run lint`                   | Oxlint, type-aware, with hooks and jsx-a11y rules.                       |
+| `npm run format:check`           | Oxfmt check. `npm run format` rewrites in place.                         |
 | `npm run check:unused`           | Knip: unused files, exports and dependencies.                            |
 | `npm run check:release`          | `semantic-release --dry-run`, validating the release config.             |
 | `npm run check:actions-security` | Zizmor audit of the workflows.                                           |

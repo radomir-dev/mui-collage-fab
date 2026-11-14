@@ -33,9 +33,8 @@
           - 'vite.config.ts'
           - 'vite.lib.config.ts'
           - 'tsconfig.json'
-          - 'eslint.config.js'
-          - '.prettierrc.json'
-          - '.prettierignore'
+          - '.oxlintrc.json'
+          - '.oxfmtrc.json'
           - 'package.json'
           - 'package-lock.json'
 

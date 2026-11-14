@@ -56,9 +56,9 @@
     "build:preview": "tsc --noEmit && vite build --base=\"${SITE_BASE_PATH:?set SITE_BASE_PATH to the deployed preview path}\"",
     "build:lib": "vite build --config vite.lib.config.ts && node scripts/build-dts.mjs",
     "preview": "vite preview",
-    "format:check": "prettier --check .",
-    "format": "prettier --write .",
-    "lint": "eslint .",
+    "format:check": "oxfmt --check",
+    "format": "oxfmt",
+    "lint": "oxlint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -94,7 +94,6 @@
     "@axe-core/playwright": "^4.14.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@eslint/js": "^10.0.1",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@playwright/test": "^1.65.1",
@@ -113,15 +112,14 @@
     "@typescript/native": "npm:typescript@^7.0.2",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
-    "eslint": "^10.14.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-jsx-a11y": "^6.10.2",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "globals": "^17.14.0",
+    "fast-check": "^4.5.0",
     "jest-axe": "^11.0.0",
     "jsdom": "^31.0.1",
+    "knip": "^6.20.0",
     "listr2": "^11.4.1",
-    "prettier": "^3.10.1",
+    "oxfmt": "^0.78.0",
+    "oxlint": "^1.93.0",
+    "oxlint-tsgolint": "^7.0.2007",
     "publint": "^0.3.25",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -132,11 +130,8 @@
     "size-limit": "^14.3.0",
     "typedoc": "^0.28.20",
     "typescript": "npm:@typescript/typescript6@^6.0.2",
-    "typescript-eslint": "^8.72.2",
     "vite": "^8.3.4",
-    "vitest": "^5.1.0",
-    "fast-check": "^4.5.0",
-    "knip": "^6.20.0"
+    "vitest": "^5.1.0"
   },
   "size-limit": [
     {
@@ -149,10 +144,5 @@
       "path": "dist-lib/index.cjs",
       "limit": "3.1 kB"
     }
-  ],
-  "overrides": {
-    "eslint-plugin-jsx-a11y": {
-      "eslint": "$eslint"
-    }
-  }
+  ]
 }
