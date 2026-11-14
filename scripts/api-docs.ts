@@ -81,6 +81,7 @@ export async function generateApiDocs(): Promise<ApiDocs> {
     geometry: fieldsOf(project, 'CollageFabItemGeometry', context),
     unions: {
       direction: unionValues(project, 'CollageFabDirection'),
+      spread: unionValues(project, 'CollageFabSpread'),
       trigger: unionValues(project, 'CollageFabTrigger'),
       variant: unionValues(project, 'CollageFabVariant'),
     },

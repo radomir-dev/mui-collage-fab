@@ -31,6 +31,7 @@ import {
 import {
   CollageFab,
   type CollageFabDirection,
+  type CollageFabSpread,
   type CollageFabTrigger,
   type CollageFabVariant,
 } from '../components/CollageFab';
@@ -120,6 +121,9 @@ function ControlRow({
 function buildSnippet(config: {
   variant: CollageFabVariant;
   direction: CollageFabDirection;
+  spread: CollageFabSpread;
+  radialStart: number;
+  radialStep: number;
   size: NamedSize;
   gap: number;
   fadeWidth: number;
@@ -132,6 +136,9 @@ function buildSnippet(config: {
   const {
     variant,
     direction,
+    spread,
+    radialStart,
+    radialStep,
     size,
     gap,
     fadeWidth,
@@ -142,15 +149,18 @@ function buildSnippet(config: {
     count,
   } = config;
 
-  const lines = [
-    '<CollageFab',
-    `  variant="${variant}"`,
-    `  direction="${direction}"`,
+  const lines = ['<CollageFab', `  variant="${variant}"`, `  spread="${spread}"`];
+  if (spread === 'radial') {
+    lines.push(`  radialStart={${radialStart}}`, `  radialStep={${radialStep}}`);
+  } else {
+    lines.push(`  direction="${direction}"`);
+  }
+  lines.push(
     `  size="${size}"`,
     `  gap={${gap}}`,
     `  fadeWidth={${fadeWidth}}`,
     `  trigger="${trigger}"`,
-  ];
+  );
   if (trigger === 'manual') {
     lines.push(`  open={${open}}`);
   }
@@ -167,6 +177,9 @@ function buildSnippet(config: {
 export function PlaygroundPage() {
   const [variant, setVariant] = React.useState<CollageFabVariant>('circular');
   const [direction, setDirection] = React.useState<CollageFabDirection>('left');
+  const [spread, setSpread] = React.useState<CollageFabSpread>('line');
+  const [radialStart, setRadialStart] = React.useState(0);
+  const [radialStep, setRadialStep] = React.useState<number | null>(null);
   const [size, setSize] = React.useState<NamedSize>('large');
   const [gap, setGap] = React.useState(16);
   const [fadeWidth, setFadeWidth] = React.useState(12);
@@ -178,7 +191,12 @@ export function PlaygroundPage() {
   const [copied, setCopied] = React.useState(false);
 
   const sizePx = SIZE_PX[size];
-  const expandedExtent = count * sizePx + Math.max(count - 1, 0) * gap;
+  const radial = spread === 'radial';
+  const step = radialStep ?? Math.round(360 / Math.max(count - 1, 1));
+  const pitch = sizePx + gap;
+  const expandedExtent = radial
+    ? 2 * pitch + sizePx
+    : count * sizePx + Math.max(count - 1, 0) * gap;
   const horizontal = direction === 'left' || direction === 'right';
   // The anchor hugs the edge it fans from, so the trigger never moves and the row grows
   // into the stage instead of out of the preview.
@@ -196,6 +214,9 @@ export function PlaygroundPage() {
       buildSnippet({
         variant,
         direction,
+        spread,
+        radialStart,
+        radialStep: step,
         size,
         gap,
         fadeWidth,
@@ -208,6 +229,9 @@ export function PlaygroundPage() {
     [
       variant,
       direction,
+      spread,
+      radialStart,
+      step,
       size,
       gap,
       fadeWidth,
@@ -272,26 +296,30 @@ export function PlaygroundPage() {
                   Preview
                 </Typography>
                 <Typography variant="caption" sx={{ ...mono, color: 'grey.600' }}>
-                  {count} × {sizePx}px + {Math.max(count - 1, 0)} × {gap}px = {expandedExtent}px
+                  {radial
+                    ? `2 × ${pitch}px + ${sizePx}px = ${expandedExtent}px`
+                    : `${count} × ${sizePx}px + ${Math.max(count - 1, 0)} × ${gap}px = ${expandedExtent}px`}
                 </Typography>
               </Box>
 
               <Box
                 sx={{
                   display: 'flex',
-                  alignItems:
-                    direction === 'up'
+                  alignItems: radial
+                    ? 'center'
+                    : direction === 'up'
                       ? 'flex-end'
                       : direction === 'down'
                         ? 'flex-start'
                         : 'center',
-                  justifyContent:
-                    direction === 'left'
+                  justifyContent: radial
+                    ? 'center'
+                    : direction === 'left'
                       ? 'flex-end'
                       : direction === 'right'
                         ? 'flex-start'
                         : 'center',
-                  minHeight: horizontal ? 320 : Math.max(320, expandedExtent + 48),
+                  minHeight: radial || !horizontal ? Math.max(320, expandedExtent + 48) : 320,
                   borderRadius: 3,
                   border: '1px dashed',
                   borderColor: 'divider',
@@ -302,16 +330,20 @@ export function PlaygroundPage() {
                 }}
               >
                 <Box
-                  sx={{
-                    position: 'relative',
-                    width: sizePx,
-                    height: sizePx,
-                  }}
+                  sx={
+                    radial
+                      ? { display: 'flex' }
+                      : {
+                          position: 'relative',
+                          width: sizePx,
+                          height: sizePx,
+                        }
+                  }
                 >
                   <CollageFab
-                    sx={{ position: 'absolute', ...anchorCorner }}
+                    sx={radial ? undefined : { position: 'absolute', ...anchorCorner }}
                     variant={variant}
-                    direction={direction}
+                    {...(radial ? { spread, radialStart, radialStep: step } : { direction })}
                     size={size}
                     gap={gap}
                     fadeWidth={fadeWidth}
@@ -468,22 +500,71 @@ export function PlaygroundPage() {
               <Box>
                 <GroupHeading>Layout &amp; motion</GroupHeading>
                 <Stack spacing={1.5} sx={{ mt: 1.5 }}>
-                  <ControlRow label="Direction" value={direction}>
+                  <ControlRow label="Spread" value={spread}>
                     <ToggleButtonGroup
                       exclusive
                       fullWidth
                       size="small"
-                      value={direction}
-                      onChange={(_event, next: CollageFabDirection | null) => {
-                        if (next) setDirection(next);
+                      value={spread}
+                      onChange={(_event, next: CollageFabSpread | null) => {
+                        if (next) setSpread(next);
                       }}
                     >
-                      <ToggleButton value="left">Left</ToggleButton>
-                      <ToggleButton value="right">Right</ToggleButton>
-                      <ToggleButton value="up">Up</ToggleButton>
-                      <ToggleButton value="down">Down</ToggleButton>
+                      <ToggleButton value="line">Line</ToggleButton>
+                      <ToggleButton value="radial">Radial</ToggleButton>
                     </ToggleButtonGroup>
                   </ControlRow>
+
+                  {radial ? (
+                    <>
+                      <ControlRow label="Start" value={`${radialStart}°`}>
+                        <Slider
+                          min={0}
+                          max={360}
+                          step={15}
+                          value={radialStart}
+                          valueLabelDisplay="auto"
+                          slotProps={{ input: { 'aria-label': 'Radial start' } }}
+                          onChange={(_event, value) => setRadialStart(value as number)}
+                        />
+                      </ControlRow>
+
+                      <ControlRow
+                        label="Step"
+                        value={radialStep === null ? `auto · ${step}°` : `${radialStep}°`}
+                      >
+                        <Slider
+                          min={10}
+                          max={360}
+                          step={5}
+                          value={step}
+                          valueLabelDisplay="auto"
+                          slotProps={{ input: { 'aria-label': 'Radial step' } }}
+                          onChange={(_event, value) => setRadialStep(value as number)}
+                        />
+                      </ControlRow>
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: -1 }}>
+                        The step starts at 360 / (buttons - 1), which spaces the ring evenly.
+                      </Typography>
+                    </>
+                  ) : (
+                    <ControlRow label="Direction" value={direction}>
+                      <ToggleButtonGroup
+                        exclusive
+                        fullWidth
+                        size="small"
+                        value={direction}
+                        onChange={(_event, next: CollageFabDirection | null) => {
+                          if (next) setDirection(next);
+                        }}
+                      >
+                        <ToggleButton value="left">Left</ToggleButton>
+                        <ToggleButton value="right">Right</ToggleButton>
+                        <ToggleButton value="up">Up</ToggleButton>
+                        <ToggleButton value="down">Down</ToggleButton>
+                      </ToggleButtonGroup>
+                    </ControlRow>
+                  )}
 
                   <ControlRow label="Buttons" value={`${count}`}>
                     <Slider

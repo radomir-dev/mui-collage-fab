@@ -1,5 +1,6 @@
 import type {
   CollageFabDirection,
+  CollageFabSpread,
   CollageFabTrigger,
   CollageFabVariant,
 } from '../components/CollageFab';
@@ -44,6 +45,7 @@ export interface ApiDocs {
   geometry: ApiFieldDoc[];
   unions: {
     direction: CollageFabDirection[];
+    spread: CollageFabSpread[];
     trigger: CollageFabTrigger[];
     variant: CollageFabVariant[];
   };
