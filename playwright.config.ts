@@ -4,6 +4,9 @@ const PORT = 4173;
 
 export default defineConfig({
   testDir: './e2e',
+  // One baseline per screenshot for all projects: an engine that renders a mask
+  // differently then fails instead of keeping a private baseline.
+  snapshotPathTemplate: '{testDir}/{testFilePath}-snapshots/{arg}{ext}',
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
