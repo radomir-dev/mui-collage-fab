@@ -35,6 +35,7 @@ const STEPS = [
     available: () => hasBinary('zizmor'),
     reason: 'zizmor not installed',
   },
+  { name: 'node', script: 'check:node' },
   { name: 'unused', script: 'check:unused' },
   { name: 'format', script: 'format:check' },
   { name: 'typecheck', script: 'typecheck' },

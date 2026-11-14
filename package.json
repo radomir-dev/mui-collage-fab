@@ -75,6 +75,7 @@
     "doctor": "node scripts/doctor.mjs",
     "doctor:fast": "node scripts/doctor.mjs --fast",
     "check:actions": "node scripts/actionlint.mjs",
+    "check:node": "node scripts/check-node.mjs",
     "check:unused": "knip",
     "check:release": "semantic-release --dry-run --no-ci",
     "check:actions-security": "zizmor .github/workflows"
