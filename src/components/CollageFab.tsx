@@ -7,7 +7,7 @@ import type { CreateSlotsAndSlotProps, SlotProps } from '@mui/material/utils';
 import useSlotProps from '@mui/utils/useSlotProps';
 import composeClasses from '@mui/utils/composeClasses';
 import generateUtilityClass from '@mui/utils/generateUtilityClass';
-import { getItemGeometry, resolveSize } from './collageFabGeometry';
+import { getGroupGeometry, getItemGeometry, resolveSize } from './collageFabGeometry';
 import { COLLAGE_FAB_DEFAULTS } from './collageFabDefaults';
 
 /**
@@ -265,22 +265,15 @@ const CollageFabRoot = styled('div', {
   slot: 'root',
   overridesResolver: (_props, styles) => styles.root,
 })(({ ownerState }: { ownerState: CollageFabOwnerState }) => {
-  const { open, direction, size, gap, count, transitionDuration, transitionEasing } = ownerState;
-  const horizontal = direction === 'left' || direction === 'right';
-  const anchorIsEnd = direction === 'left' || direction === 'up';
-  const mainExtent = open ? count * size + Math.max(count - 1, 0) * gap : size;
+  const { open, size, transitionDuration, transitionEasing } = ownerState;
+  const { extent } = getGroupGeometry(ownerState);
+  const timing = getTransitionTiming(transitionDuration, transitionEasing);
 
   return {
     position: 'relative',
-    width: horizontal ? mainExtent : size,
-    height: horizontal ? size : mainExtent,
-    display: 'flex',
-    flexDirection: horizontal ? 'row' : 'column',
-    justifyContent: anchorIsEnd ? 'flex-end' : 'flex-start',
-    transition: `${horizontal ? 'width' : 'height'} ${getTransitionTiming(
-      transitionDuration,
-      transitionEasing,
-    )}`,
+    width: open ? extent.width : size,
+    height: open ? extent.height : size,
+    transition: `width ${timing}, height ${timing}`,
     // A filter traces the soft mask edges; a box-shadow would trace the wrapper rectangles.
     filter: 'drop-shadow(0px 6px 12px rgba(0,0,0,0.25))',
     cursor: open ? 'default' : 'pointer',
@@ -293,23 +286,17 @@ const CollageFabItemRoot = styled('div', {
   slot: 'item',
   overridesResolver: (_props, styles) => styles.item,
 })(({ ownerState }: { ownerState: CollageFabItemOwnerState }) => {
-  const { direction, size, index, geometry, cornerRadius, transitionDuration, transitionEasing } =
-    ownerState;
-  const horizontal = direction === 'left' || direction === 'right';
-  const anchorEdge =
-    direction === 'left'
-      ? { right: 0 }
-      : direction === 'right'
-        ? { left: 0 }
-        : direction === 'up'
-          ? { bottom: 0 }
-          : { top: 0 };
+  const { size, index, geometry, cornerRadius, transitionDuration, transitionEasing } = ownerState;
+  const { align } = getGroupGeometry(ownerState);
+  const placement = {
+    ...(align.x === 'end' ? { right: 0 } : { left: 0 }),
+    ...(align.y === 'end' ? { bottom: 0 } : { top: 0 }),
+  };
   const timing = getTransitionTiming(transitionDuration, transitionEasing);
 
   return {
     position: 'absolute',
-    ...anchorEdge,
-    ...(horizontal ? { top: 0 } : { left: 0 }),
+    ...placement,
     width: size,
     height: size,
     borderRadius: cornerRadius,

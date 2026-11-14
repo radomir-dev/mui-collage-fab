@@ -27,11 +27,51 @@ const DIRECTION_VECTORS: Record<CollageFabDirection, Vector> = {
   down: { x: 0, y: 1 },
 };
 
+/** Where the anchor child sits on one axis of the root's box. */
+type CollageFabAlign = 'start' | 'end';
+
+/** The box the root grows into, plus the anchor's place inside it. */
+export interface CollageFabGroupGeometry {
+  extent: { width: number; height: number };
+  align: { x: CollageFabAlign; y: CollageFabAlign };
+}
+
 function translateCss({ x, y }: Vector, horizontal: boolean): string {
   if (x !== 0 && y !== 0) {
     return `translate(${x}px, ${y}px)`;
   }
   return horizontal ? `translateX(${x}px)` : `translateY(${y}px)`;
+}
+
+/** The offset a child travels by once the group is fully expanded. */
+function getItemOffset(index: number, ownerState: CollageFabOwnerState): Vector {
+  const vector = DIRECTION_VECTORS[ownerState.direction];
+  const travel = index * (ownerState.size + ownerState.gap);
+  return { x: vector.x * travel, y: vector.y * travel };
+}
+
+function alignOf(offsets: number[]): CollageFabAlign {
+  if (offsets.every((offset) => offset <= 0)) {
+    return offsets.some((offset) => offset < 0) ? 'end' : 'start';
+  }
+  return 'start';
+}
+
+/**
+ * The root's box grows around whatever the children travel through: one axis is the
+ * span of their offsets, the other stays a single button wide. The anchor sits on the
+ * edge the group fans away from, so pinning that edge in the parent keeps the
+ * collapsed button still while the box grows.
+ */
+export function getGroupGeometry(ownerState: CollageFabOwnerState): CollageFabGroupGeometry {
+  const { count, size } = ownerState;
+  const offsets = Array.from({ length: count }, (_, index) => getItemOffset(index, ownerState));
+  const xs = offsets.map((offset) => offset.x);
+  const ys = offsets.map((offset) => offset.y);
+  const width = Math.max(...xs, 0) - Math.min(...xs, 0) + size;
+  const height = Math.max(...ys, 0) - Math.min(...ys, 0) + size;
+
+  return { extent: { width, height }, align: { x: alignOf(xs), y: alignOf(ys) } };
 }
 
 /**
@@ -53,8 +93,7 @@ export function getItemGeometry(
   const vector = DIRECTION_VECTORS[direction];
   const horizontal = vector.x !== 0;
   const leading = (horizontal ? vector.x : vector.y) < 0;
-  const travel = open ? index * pitch : 0;
-  const offset: Vector = { x: vector.x * travel, y: vector.y * travel };
+  const offset = open ? getItemOffset(index, ownerState) : { x: 0, y: 0 };
 
   // Slice boundaries, measured inside the item from the edge the group fans towards.
   // The anchor takes a whole `spread` so its cut line never crosses the button: it is
