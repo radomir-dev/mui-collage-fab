@@ -91,7 +91,7 @@
     "@axe-core/playwright": "^4.14.0",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@mui/icons-material": "^5.16.7",
     "@mui/material": "^5.16.7",
     "@playwright/test": "^1.65.1",
@@ -109,7 +109,7 @@
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^6.3.0",
     "@vitest/coverage-v8": "^5.1.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
@@ -143,5 +143,10 @@
       "path": "dist-lib/index.cjs",
       "limit": "3.1 kB"
     }
-  ]
+  ],
+  "overrides": {
+    "eslint-plugin-jsx-a11y": {
+      "eslint": "$eslint"
+    }
+  }
 }
