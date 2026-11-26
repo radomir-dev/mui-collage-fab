@@ -361,13 +361,12 @@ const CollageFabItemRoot = styled('div', {
     transitionDuration,
     transitionEasing,
     open,
-    spread,
-    count,
     ringPeek,
   } = ownerState;
-  // A ring's petals are grown by the collar while they are all in one place, so the rim
-  // is the same width all the way round instead of only where a petal reaches furthest.
-  const grown = !open && spread === 'radial' && count > 1 && index > 0 && ringPeek > 0;
+  // A two-dimensional cut is grown by the collar while every child is in one place, so
+  // the rim is the same width all the way round instead of only where one reaches
+  // furthest. A one-dimensional row keeps its own slices.
+  const grown = !open && index > 0 && ringPeek > 0 && Boolean(geometry.maskComposite);
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
