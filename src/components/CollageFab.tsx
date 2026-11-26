@@ -353,7 +353,21 @@ const CollageFabItemRoot = styled('div', {
   slot: 'item',
   overridesResolver: (_props, styles) => styles.item,
 })(({ ownerState }: { ownerState: CollageFabItemOwnerState }) => {
-  const { size, index, geometry, cornerRadius, transitionDuration, transitionEasing } = ownerState;
+  const {
+    size,
+    index,
+    geometry,
+    cornerRadius,
+    transitionDuration,
+    transitionEasing,
+    open,
+    spread,
+    count,
+    ringPeek,
+  } = ownerState;
+  // A ring's petals are grown by the collar while they are all in one place, so the rim
+  // is the same width all the way round instead of only where a petal reaches furthest.
+  const grown = !open && spread === 'radial' && count > 1 && index > 0 && ringPeek > 0;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
@@ -384,7 +398,7 @@ const CollageFabItemRoot = styled('div', {
     zIndex: index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
-    transform: geometry.translate,
+    transform: `${geometry.translate} scale(${grown ? 1 + (2 * ringPeek) / size : 1})`,
     WebkitMaskImage: geometry.maskImage,
     maskImage: geometry.maskImage,
     WebkitMaskSize: geometry.maskSize,
