@@ -362,20 +362,7 @@ const CollageFabItemRoot = styled('div', {
   slot: 'item',
   overridesResolver: (_props, styles) => styles.item,
 })(({ ownerState }: { ownerState: CollageFabItemOwnerState }) => {
-  const {
-    size,
-    index,
-    geometry,
-    cornerRadius,
-    transitionDuration,
-    transitionEasing,
-    open,
-    ringPeek,
-  } = ownerState;
-  // A two-dimensional cut is grown by the collar while every child is in one place, so
-  // the rim is the same width all the way round instead of only where one reaches
-  // furthest. A one-dimensional row keeps its own slices.
-  const grown = !open && index > 0 && ringPeek > 0 && Boolean(geometry.maskComposite);
+  const { size, index, geometry, cornerRadius, transitionDuration, transitionEasing } = ownerState;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
@@ -406,7 +393,7 @@ const CollageFabItemRoot = styled('div', {
     zIndex: index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
-    transform: `${geometry.translate} scale(${grown ? 1 + (2 * ringPeek) / size : 1})`,
+    transform: geometry.translate,
     WebkitMaskImage: geometry.maskImage,
     maskImage: geometry.maskImage,
     WebkitMaskSize: geometry.maskSize,

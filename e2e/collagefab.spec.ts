@@ -162,10 +162,10 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
   expect(Math.min(...stacking.slice(1))).toBeGreaterThan(0);
   await expect(slices.nth(1)).toHaveCSS('mask-image', /radial-gradient\(circle, /);
 
-  // The collar is a grown petal, so the rim is the same width all the way round.
+  // The collage is the button itself: a petal never grows past the anchor's own disc.
   const anchorBox = (await slices.first().boundingBox())!;
   const petalBox = (await slices.nth(1).boundingBox())!;
-  expect(petalBox.width - anchorBox.width).toBeCloseTo(12, 0);
+  expect(petalBox.width).toBeCloseTo(anchorBox.width, 0);
 
   await group.hover();
   await page.waitForTimeout(700);
