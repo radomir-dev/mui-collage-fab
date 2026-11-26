@@ -1,3 +1,10 @@
+# [0.11.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.10.0...v0.11.0) (2026-11-26)
+
+
+### Features
+
+* **demo:** add a three-sided group ([#89](https://github.com/radomir-dev/mui-collage-fab/issues/89)) ([40e0ba3](https://github.com/radomir-dev/mui-collage-fab/commit/40e0ba3ec8dca20758968dc7df2c1c567e594fc5))
+
 # [0.10.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.9.0...v0.10.0) (2026-11-26)
 
 
