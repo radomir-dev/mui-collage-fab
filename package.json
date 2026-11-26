@@ -151,7 +151,7 @@
     {
       "name": "CJS build",
       "path": "dist-lib/index.cjs",
-      "limit": "3.3 kB"
+      "limit": "3.4 kB"
     }
   ]
 }

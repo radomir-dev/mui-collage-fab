@@ -17,6 +17,7 @@ export const COLLAGE_FAB_DEFAULTS = {
   variant: 'circular',
   gap: 16,
   fadeWidth: 12,
+  ringPeek: 2,
   spread: 'line',
   radialStart: 0,
   trigger: 'hover',
@@ -30,6 +31,7 @@ export const COLLAGE_FAB_DEFAULTS = {
   variant: CollageFabVariant;
   gap: number;
   fadeWidth: number;
+  ringPeek: number;
   spread: CollageFabSpread;
   radialStart: number;
   trigger: CollageFabTrigger;

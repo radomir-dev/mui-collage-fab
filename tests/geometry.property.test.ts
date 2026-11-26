@@ -37,6 +37,7 @@ function ownerState(
     radialStart: 0,
     radialStep: 360 / count,
     trigger: 'hover',
+    ringPeek: 2,
     size,
     variant: 'circular',
     cornerRadius: '50%',
