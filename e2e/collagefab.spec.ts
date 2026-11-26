@@ -105,6 +105,67 @@ test('a mixed group fans along both axes', async ({ page }) => {
   expect(box.height).toBeGreaterThan(100);
 });
 
+test('a radial group rings the anchor without moving it', async ({ page }) => {
+  const group = card(page, 'Radial').locator('.MuiCollageFab-root');
+  await group.scrollIntoViewIfNeeded();
+
+  const slices = group.locator('.MuiCollageFab-item');
+  const count = await slices.count();
+  const centre = async (index: number) => {
+    const box = (await slices.nth(index).boundingBox())!;
+    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  };
+
+  await expect(slices.first()).toHaveCSS('mask-image', 'none');
+  const closed = await centre(0);
+
+  const stacking = await group.evaluate((root) =>
+    [...root.children].map((child) => Number(getComputedStyle(child).zIndex)),
+  );
+  // Collapsed slices are inert, so hit testing cannot see them; the anchor has to
+  // outrank them instead, or every wedge paints over the button.
+  expect(stacking[0]).toBeGreaterThan(Math.max(...stacking.slice(1)));
+
+  await group.hover();
+  await page.waitForTimeout(700);
+
+  const opened = await centre(0);
+  expect(opened.x).toBeCloseTo(closed.x, 0);
+  expect(opened.y).toBeCloseTo(closed.y, 0);
+
+  for (let index = 1; index < count; index += 1) {
+    const point = await centre(index);
+    expect(Math.hypot(point.x - opened.x, point.y - opened.y)).toBeCloseTo(60, 0);
+    const maskImage = await slices
+      .nth(index)
+      .evaluate((element) => getComputedStyle(element).maskImage);
+    expect(maskImage).toContain('conic-gradient');
+  }
+});
+
+test('a ring owns the gap between the anchor and its children', async ({ page }) => {
+  const group = card(page, 'Radial').locator('.MuiCollageFab-root');
+  await group.scrollIntoViewIfNeeded();
+
+  await group.hover();
+  await expect(group).toHaveClass(/Mui-expanded/);
+  await page.waitForTimeout(700);
+
+  const box = (await group.boundingBox())!;
+  const from = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+  const child = (await group.locator('.MuiCollageFab-item').nth(1).boundingBox())!;
+  const gap = {
+    x: (from.x + child.x + child.width / 2) / 2,
+    y: (from.y + child.y + child.height / 2) / 2,
+  };
+
+  const ownsGap = await page.evaluate((point) => {
+    const hit = document.elementFromPoint(point.x, point.y);
+    return hit !== null && hit.closest('.MuiCollageFab-root') !== null;
+  }, gap);
+  expect(ownsGap).toBe(true);
+});
+
 test('collapsed slices leave the accessibility tree and the tab order', async ({ page }) => {
   const group = card(page, 'left').locator('.MuiCollageFab-root');
   const slices = group.locator('.MuiCollageFab-item');

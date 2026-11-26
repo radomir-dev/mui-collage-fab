@@ -334,6 +334,41 @@ function MixedDirectionsCard({ demo }: { demo: MixedDemo }) {
   );
 }
 
+function RadialCard() {
+  return (
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+      <CardHeading title="Radial" caption="Ring around the anchor" />
+
+      {/* A radial group is centred on the anchor in both axes, so a centring stage
+          keeps the collapsed button still while the ring grows around it. */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: 200,
+          mt: 1,
+        }}
+      >
+        <CollageFab spread="radial" size={DIRECTION_SIZE} gap={DIRECTION_GAP} fadeWidth={12}>
+          {MOCK_TOOLS.slice(0, 6).map((tool, idx) => (
+            <Fab
+              key={idx}
+              sx={{
+                bgcolor: tool.color,
+                color: 'white',
+                '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
+              }}
+            >
+              {tool.icon}
+            </Fab>
+          ))}
+        </CollageFab>
+      </Box>
+    </Paper>
+  );
+}
+
 export function DemoPage() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -348,7 +383,7 @@ export function DemoPage() {
         sx={{ maxWidth: 700, mx: 'auto' }}
       >
         Mathematical clipping slices overlapping circles. Simultaneous inverse translation of the
-        <strong> WebkitMaskPosition</strong> against the component's <strong>translateX</strong>{' '}
+        <strong> mask position</strong> against the component&apos;s <strong>transform</strong>{' '}
         creates a flawless morphing unfold without bounds popping.
       </Typography>
 
@@ -385,6 +420,7 @@ export function DemoPage() {
         {MIXED_DEMOS.map((demo) => (
           <MixedDirectionsCard key={demo.title} demo={demo} />
         ))}
+        <RadialCard />
       </Box>
     </Container>
   );
