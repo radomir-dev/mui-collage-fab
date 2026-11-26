@@ -29,6 +29,14 @@ const DIRECTION_VECTORS: Record<CollageFabDirection, readonly [number, number]> 
   down: [0, 1],
 };
 
+/** The sector of the collapsed disc each direction owns, clockwise from twelve o'clock. */
+const DIRECTION_ANGLES: Record<CollageFabDirection, number> = {
+  up: 0,
+  right: 90,
+  down: 180,
+  left: 270,
+};
+
 /** Where the anchor child sits on one axis of the root's box. */
 type CollageFabAlign = 'start' | 'center' | 'end';
 
@@ -52,6 +60,11 @@ function translateCss({ x, y }: Vector, horizontal: boolean): string {
 // generated CSS strings.
 function clean(value: number): number {
   return +value.toFixed(4);
+}
+
+/** A wedge that fades in from its start, holds, and fades out at `window`. */
+function conic(from: number, taper: number, body: number, window: number): string {
+  return `conic-gradient(from ${clean(from)}deg, #0000 0deg, #000 ${clean(taper)}deg, #000 ${clean(body)}deg, transparent ${clean(window)}deg)`;
 }
 
 function directionOf(index: number, ownerState: CollageFabOwnerState): CollageFabDirection {
@@ -140,6 +153,10 @@ export function getItemGeometry(
     return getWedgeGeometry(index, ownerState);
   }
 
+  if (usesSectors(ownerState)) {
+    return getSectorGeometry(index, ownerState);
+  }
+
   const { count, size, gap, fadeWidth, open } = ownerState;
   const spread = (count - 1) * (size + gap) + size + fadeWidth;
   const [x, y] = DIRECTION_VECTORS[directionOf(index, ownerState)];
@@ -194,9 +211,70 @@ function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): Coll
     translate: translateCss(offset, false),
     maskImage:
       count > 1 && index > 0
-        ? `conic-gradient(from ${clean(from)}deg, #0000 0deg, #000 ${clean(fade)}deg, #000 ${clean(index === count - 1 ? step : step + fade)}deg, transparent ${window}deg)`
+        ? conic(from, fade, index === count - 1 ? step : step + fade, window)
         : 'none',
     maskSize: `${extent}px ${extent}px`,
     maskPosition: `${-offset.x - reach}px ${-offset.y - reach}px`,
+  };
+}
+
+/** A group that fans over more than one axis shares the collapsed disc by direction. */
+function usesSectors(ownerState: CollageFabOwnerState): boolean {
+  const sides = new Set<CollageFabDirection>();
+  for (let index = 1; index < ownerState.count; index += 1) {
+    sides.add(directionOf(index, ownerState));
+  }
+  return sides.size > 1;
+}
+
+/**
+ * Every side of a mixed group owns an equal sector of the collapsed disc, and the
+ * children on one side split that sector between them, so no side can take more of
+ * the collage than another. The sector is cut with a conic mask whose apex sits on
+ * the stack centre, like the ring, so the cut stays put while a child travels.
+ */
+function getSectorGeometry(
+  index: number,
+  ownerState: CollageFabOwnerState,
+): CollageFabItemGeometry {
+  const { count, size, fadeWidth, open } = ownerState;
+  const directions = Array.from({ length: count }, (_, child) => directionOf(child, ownerState));
+  const side = directions[index];
+  const sides = [...new Set(directions.slice(1))].sort(
+    (a, b) => DIRECTION_ANGLES[a] - DIRECTION_ANGLES[b],
+  );
+  const share = 360 / sides.length;
+  const slot = sides.indexOf(side);
+
+  const offsets = Array.from({ length: count }, (_, child) => getItemOffset(child, ownerState));
+  const offset = open ? offsets[index] : ORIGIN;
+  const travel = Math.max(...offsets.map((entry) => Math.abs(entry.x) + Math.abs(entry.y)));
+  const extent = size + 2 * travel;
+  const fade = fadeWidth ? ((fadeWidth / (size / 2)) * 180) / Math.PI : 0;
+
+  // Children sharing a side share its slot, so a side can never take more of the
+  // collage than another. Equal slots in angular order, the first squared to its own
+  // direction, which tiles the disc however the sides are spread.
+  const start = DIRECTION_ANGLES[sides[0]] - share / 2 + slot * share;
+  // A slot that does not hold its direction in the middle would cut the child as it
+  // travels, so it grows just enough to keep the whole button inside.
+  const angle = DIRECTION_ANGLES[side];
+  const own = Math.abs(offset.x) + Math.abs(offset.y);
+  const need = own ? (Math.atan(size / 2 / own) * 180) / Math.PI : 0;
+  const before = Math.max(0, need - (angle - start));
+  const after = Math.max(0, need - (start + share - angle));
+  const window = share + before + after;
+  // The last slot fades out into the anchor; the others hand over and end hard, so no
+  // edge fades twice.
+  const closes = slot === sides.length - 1;
+
+  return {
+    translate: translateCss(offset, offset.x !== 0),
+    maskImage:
+      index > 0
+        ? conic(start - before - fade / 2, fade, closes ? window : window + fade, window + fade)
+        : 'none',
+    maskSize: `${extent}px ${extent}px`,
+    maskPosition: `${-offset.x - travel}px ${-offset.y - travel}px`,
   };
 }

@@ -146,12 +146,12 @@
     {
       "name": "ESM build",
       "path": "dist-lib/index.js",
-      "limit": "3.5 kB"
+      "limit": "3.8 kB"
     },
     {
       "name": "CJS build",
       "path": "dist-lib/index.cjs",
-      "limit": "3.4 kB"
+      "limit": "3.65 kB"
     }
   ]
 }
