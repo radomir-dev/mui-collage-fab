@@ -1,3 +1,10 @@
+# [0.9.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.8.0...v0.9.0) (2026-11-26)
+
+
+### Features
+
+* **directions:** give every side an equal share of the collage ([#85](https://github.com/radomir-dev/mui-collage-fab/issues/85)) ([f5d8986](https://github.com/radomir-dev/mui-collage-fab/commit/f5d8986a276bba801d658b79f590f4b3d1f59386))
+
 # [0.8.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.7.0...v0.8.0) (2026-11-26)
 
 
