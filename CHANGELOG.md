@@ -1,3 +1,10 @@
+# [0.18.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.17.1...v0.18.0) (2026-11-26)
+
+
+### Features
+
+* **collage:** keep the collage inside the button ([#107](https://github.com/radomir-dev/mui-collage-fab/issues/107)) ([e0712bc](https://github.com/radomir-dev/mui-collage-fab/commit/e0712bcc722e93237c573b28a79f5ac237b4093e))
+
 ## [0.17.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.17.0...v0.17.1) (2026-11-26)
 
 
