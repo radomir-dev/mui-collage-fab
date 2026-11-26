@@ -92,6 +92,7 @@ test('a mixed group fans along both axes', async ({ page }) => {
   await group.hover();
   await page.waitForTimeout(700);
 
+  await expect(slices.nth(1)).toHaveCSS('mask-image', /conic-gradient/);
   const sideways = await readSlice(slices.nth(1));
   const upwards = await readSlice(slices.nth(3));
 

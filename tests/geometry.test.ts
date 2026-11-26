@@ -175,27 +175,22 @@ describe('getItemGeometry with per-child directions', () => {
   const directions: CollageFabDirection[] = ['left', 'right', 'down', 'down'];
 
   it('gives every direction its own leg, one pitch apart', () => {
-    expect(getItemGeometry(1, state({ directions, open: true })).translate).toBe(
-      'translateX(72px)',
-    );
-    expect(getItemGeometry(2, state({ directions, open: true })).translate).toBe(
-      'translateY(72px)',
-    );
-    expect(getItemGeometry(3, state({ directions, open: true })).translate).toBe(
-      'translateY(144px)',
-    );
+    const group = (index: number) =>
+      getItemGeometry(index, state({ count: 4, directions, open: true }));
+
+    expect(group(1).translate).toBe('translateX(72px)');
+    expect(group(2).translate).toBe('translateY(72px)');
+    expect(group(3).translate).toBe('translateY(144px)');
   });
 
-  it('mirrors the cut for a leg on the other side of the anchor', () => {
+  it('puts two opposite legs half a disc apart', () => {
     const directions: CollageFabDirection[] = ['right', 'right', 'left', 'left'];
     const mask = (index: number) => getItemGeometry(index, state({ count: 4, directions }));
 
-    // Both legs cut the collapsed disc at the same band, from opposite edges, so the
-    // group still tiles into `count - 1` slices with the anchor underneath.
-    expect(numbers(mask(1).maskPosition)[0]).toBeCloseTo(numbers(mask(3).maskPosition)[0], 6);
-    expect(mask(1).maskImage).toContain('transparent 0px');
-    expect(mask(3).maskImage).toContain('#000 0px');
-    expect(numbers(mask(1).maskPosition)[0]).not.toBeCloseTo(numbers(mask(2).maskPosition)[0], 6);
+    const start = (index: number) =>
+      Number(/from (-?[\d.]+)deg/.exec(mask(index).maskImage)?.[1] ?? 0);
+
+    expect(Math.abs(start(1) - start(2))).toBeCloseTo(180, 0);
   });
 
   it('falls back to direction for children past the end of the list', () => {
@@ -271,5 +266,38 @@ describe('getItemGeometry', () => {
     const spread = (count - 1) * (size + gap) + size + fadeWidth;
 
     expect(maskSizeOf(getItemGeometry(1, state({ size, gap, fadeWidth, count })))).toBe(2 * spread);
+  });
+});
+
+describe('mixed directions', () => {
+  const geometryFor = (directions: CollageFabDirection[]) => {
+    const group = state({ directions, count: directions.length });
+    return directions.map((_, index) => getItemGeometry(index, group));
+  };
+
+  const startOf = (mask: string) => Number(/from (-?[\d.]+)deg/.exec(mask)?.[1]);
+  const spanOf = (mask: string) => {
+    const stops = /#000 ([\d.]+)deg,.*transparent ([\d.]+)deg/.exec(mask);
+    return Number(stops?.[2]) - Number(stops?.[1]);
+  };
+
+  it('gives every side an equal sector of the collapsed disc', () => {
+    const starts = geometryFor(['up', 'right', 'down', 'left', 'up'])
+      .slice(1)
+      .map((item) => startOf(item.maskImage))
+      .sort((a, b) => a - b);
+
+    for (let index = 1; index < starts.length; index += 1) {
+      expect(starts[index] - starts[index - 1]).toBeCloseTo(90, 0);
+    }
+  });
+
+  it('keeps children on one side inside that side alone', () => {
+    const items = geometryFor(['left', 'left', 'left', 'down']);
+
+    expect(spanOf(items[1].maskImage)).toBeCloseTo(180, 0);
+    expect(items[1].maskImage).toBe(items[2].maskImage);
+    expect(spanOf(items[3].maskImage)).toBeCloseTo(180, 0);
+    expect(Math.abs(startOf(items[1].maskImage) - startOf(items[3].maskImage))).toBeCloseTo(180, 0);
   });
 });
