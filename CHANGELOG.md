@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.5.0...v0.5.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **a11y:** keep only the anchor live in a collapsed manual group ([#76](https://github.com/radomir-dev/mui-collage-fab/issues/76)) ([a6a2483](https://github.com/radomir-dev/mui-collage-fab/commit/a6a248383fc2fd2174ba54131d6b4e9e5dc017d4))
+
 # [0.5.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.4.0...v0.5.0) (2026-11-26)
 
 
