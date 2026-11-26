@@ -1,3 +1,10 @@
+# [0.12.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.11.1...v0.12.0) (2026-11-26)
+
+
+### Features
+
+* **demo:** one square card for the four single-axis fans ([#94](https://github.com/radomir-dev/mui-collage-fab/issues/94)) ([a2b01cb](https://github.com/radomir-dev/mui-collage-fab/commit/a2b01cb3f93628b824efbcbe050fdab29236e5af))
+
 ## [0.11.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.11.0...v0.11.1) (2026-11-26)
 
 
