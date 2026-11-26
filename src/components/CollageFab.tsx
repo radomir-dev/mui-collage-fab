@@ -322,9 +322,17 @@ const CollageFabRoot = styled('div', {
   overridesResolver: (_props, styles) => styles.root,
 })(({ ownerState }: { ownerState: CollageFabOwnerState }) => {
   const { open, size, spread, gap, count, transitionDuration, transitionEasing } = ownerState;
-  const { extent } = getGroupGeometry(ownerState);
+  const { extent, align } = getGroupGeometry(ownerState);
   const timing = getTransitionTiming(transitionDuration, transitionEasing);
-  const pad = open && spread === 'radial' && count > 1 ? size + gap : 0;
+  // A centred axis grows both ways around the anchor, so the box would only re-centre
+  // itself: keep it one button and let the children paint outside.
+  const wide = align.x === 'center' ? size : open ? extent.width : size;
+  const tall = align.y === 'center' ? size : open ? extent.height : size;
+  // A centred group paints outside its box, so the root keeps a pad over the whole fan:
+  // without it the pointer leaves the root on its way to a child and the group folds.
+  const centred = align.x === 'center' || align.y === 'center';
+  const reach = spread === 'radial' ? size + gap : Math.max(extent.width, extent.height) / 2;
+  const pad = open && count > 1 && centred ? reach : 0;
 
   return {
     position: 'relative',
@@ -339,8 +347,8 @@ const CollageFabRoot = styled('div', {
         zIndex: -1,
       },
     }),
-    width: open ? extent.width : size,
-    height: open ? extent.height : size,
+    width: wide,
+    height: tall,
     transition: `width ${timing}, height ${timing}`,
     // A filter traces the soft mask edges; a box-shadow would trace the wrapper rectangles.
     filter: 'drop-shadow(0px 6px 12px rgba(0,0,0,0.25))',
