@@ -19,12 +19,8 @@ const GAP_MIN = 6;
 const GAP_MAX = 14;
 const GAP_RATIO = 0.25;
 const CARD_MIN_HEIGHT = 180;
-const DIRECTION_BUTTON_COUNT = 4;
 const DIRECTION_SIZE = 48;
 const DIRECTION_GAP = 12;
-const DIRECTION_SQUARE = 300;
-const DIRECTION_EXTENT =
-  DIRECTION_BUTTON_COUNT * DIRECTION_SIZE + (DIRECTION_BUTTON_COUNT - 1) * DIRECTION_GAP;
 
 interface RowFit {
   size: number;
@@ -143,129 +139,53 @@ function CountCard({ count }: { count: number }) {
   );
 }
 
-interface DirectionDemo {
-  value: CollageFabDirection;
-  caption: string;
-  horizontal: boolean;
-  justifyContent: 'flex-start' | 'flex-end';
-}
+const DIRECTION_CORNERS = [
+  { direction: 'down', justify: 'flex-start', align: 'flex-start' },
+  { direction: 'right', justify: 'flex-start', align: 'flex-end' },
+  { direction: 'up', justify: 'flex-end', align: 'flex-end' },
+  { direction: 'left', justify: 'flex-end', align: 'flex-start' },
+] as const;
 
-const DIRECTION_DEMOS: DirectionDemo[] = [
-  { value: 'left', caption: 'Pins right, fans left', horizontal: true, justifyContent: 'flex-end' },
-  {
-    value: 'right',
-    caption: 'Pins left, fans right',
-    horizontal: true,
-    justifyContent: 'flex-start',
-  },
-  { value: 'up', caption: 'Pins bottom, fans up', horizontal: false, justifyContent: 'flex-end' },
-  {
-    value: 'down',
-    caption: 'Pins top, fans down',
-    horizontal: false,
-    justifyContent: 'flex-start',
-  },
-];
-
-// Each axis is a square stage, side by side, so the pair reads as one symmetric
-// block: two stacked cards on the left, two side-by-side cards on the right, with
-// the overline centred over each square.
-const HORIZONTAL_DEMOS = DIRECTION_DEMOS.filter((demo) => demo.horizontal);
-const VERTICAL_DEMOS = DIRECTION_DEMOS.filter((demo) => !demo.horizontal);
-
-function DirectionCard({ demo }: { demo: DirectionDemo }) {
+function DirectionCornersCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, height: '100%' }}>
-      <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}
-      >
-        <Typography variant="h6" fontWeight="bold" color="grey.300">
-          {demo.value}
-        </Typography>
-        <Typography variant="caption" sx={{ color: 'grey.600', maxWidth: 84, textAlign: 'right' }}>
-          {demo.caption}
-        </Typography>
-      </Box>
-
-      {/* The stage fills whatever the card is given, so the fan never resizes the
-          card and both cards of a square stay the same size open or closed. */}
-      <Box
-        sx={{
-          flexGrow: 1,
-          mt: 1,
-          minHeight: demo.horizontal ? 0 : DIRECTION_EXTENT,
-          display: 'flex',
-          flexDirection: demo.horizontal ? 'row' : 'column',
-          justifyContent: demo.justifyContent,
-          alignItems: 'center',
-        }}
-      >
-        <CollageFab direction={demo.value} size={DIRECTION_SIZE} gap={DIRECTION_GAP} fadeWidth={12}>
-          {MOCK_TOOLS.slice(0, DIRECTION_BUTTON_COUNT).map((tool, idx) => (
-            <Fab
-              key={idx}
-              sx={{
-                bgcolor: tool.color,
-                color: 'white',
-                '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
-              }}
-            >
-              {tool.icon}
-            </Fab>
-          ))}
-        </CollageFab>
-      </Box>
-    </Paper>
-  );
-}
-
-function DirectionSquare({
-  label,
-  demos,
-  row,
-}: {
-  label: string;
-  demos: DirectionDemo[];
-  row?: boolean;
-}) {
-  return (
-    <Box
-      sx={{
-        width: DIRECTION_SQUARE,
-        minHeight: DIRECTION_SQUARE,
-        display: 'flex',
-        flexDirection: 'column',
-        flexShrink: 0,
-      }}
-    >
-      <Typography
-        variant="overline"
-        align="center"
-        sx={{ color: 'grey.500', letterSpacing: '0.2em', display: 'block', mb: 1, lineHeight: 1.5 }}
-      >
-        {label}
-      </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 1.5,
-          flexGrow: 1,
-          minHeight: 0,
-          flexDirection: row ? 'row' : 'column',
-        }}
-      >
-        {demos.map((demo) => (
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 460, flexShrink: 0 }}>
+      <Box sx={{ position: 'relative', aspectRatio: '1' }}>
+        {DIRECTION_CORNERS.map((corner) => (
           <Box
-            key={`direction-${demo.value}`}
-            sx={{ flex: '1 1 0', minWidth: 0, minHeight: 0, display: 'flex' }}
+            key={corner.direction}
+            sx={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              justifyContent: corner.justify,
+              alignItems: corner.align,
+              pointerEvents: 'none',
+            }}
           >
-            <Box sx={{ width: '100%' }}>
-              <DirectionCard demo={demo} />
-            </Box>
+            <CollageFab
+              direction={corner.direction}
+              size={DIRECTION_SIZE}
+              gap={DIRECTION_GAP}
+              fadeWidth={12}
+              sx={{ pointerEvents: 'auto' }}
+            >
+              {MOCK_TOOLS.slice(0, 3).map((tool, idx) => (
+                <Fab
+                  key={idx}
+                  sx={{
+                    bgcolor: tool.color,
+                    color: 'white',
+                    '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
+                  }}
+                >
+                  {tool.icon}
+                </Fab>
+              ))}
+            </CollageFab>
           </Box>
         ))}
       </Box>
-    </Box>
+    </Paper>
   );
 }
 
@@ -412,10 +332,6 @@ export function DemoPage() {
         ))}
       </Grid>
 
-      <Typography variant="h5" fontWeight="bold" color="white" align="center" mt={3} mb={2}>
-        Direction
-      </Typography>
-
       <Box
         sx={{
           display: 'flex',
@@ -423,18 +339,14 @@ export function DemoPage() {
           alignItems: 'flex-start',
           gap: 3,
           flexWrap: 'wrap',
+          mt: 3,
         }}
       >
-        <DirectionSquare label="Horizontal" demos={HORIZONTAL_DEMOS} />
-        <DirectionSquare label="Vertical" demos={VERTICAL_DEMOS} row />
+        <DirectionCornersCard />
+        <MixedAxesCard />
       </Box>
 
-      <Typography variant="h5" fontWeight="bold" color="white" align="center" mt={3} mb={2}>
-        Mixed axes
-      </Typography>
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
-        <MixedAxesCard />
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap', mt: 3 }}>
         <ThreeSidesCard />
         <RadialCard />
       </Box>
