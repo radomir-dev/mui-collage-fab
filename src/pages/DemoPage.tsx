@@ -74,6 +74,8 @@ function useMeasuredWidth<T extends HTMLElement>() {
   return { ref, width };
 }
 
+const DEMO_CARD_HEIGHT = 328;
+
 const CARD_SX = {
   p: 3,
   borderRadius: 4,
@@ -150,10 +152,12 @@ function DirectionCornersCard() {
   return (
     <Paper
       elevation={3}
-      sx={{ ...CARD_SX, p: 1.5, width: 460, flexShrink: 0 }}
+      sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}
       data-testid="direction-card"
     >
-      <Box sx={{ position: 'relative', aspectRatio: '1' }}>
+      <CardHeading title="Direction" caption="A fan per axis" />
+
+      <Box sx={{ position: 'relative', flexGrow: 1, mt: 1, minHeight: 0 }}>
         {DIRECTION_CORNERS.map((corner) => (
           <Box
             key={corner.direction}
@@ -173,7 +177,7 @@ function DirectionCornersCard() {
               fadeWidth={12}
               sx={{ pointerEvents: 'auto' }}
             >
-              {MOCK_TOOLS.slice(0, 3).map((tool, idx) => (
+              {MOCK_TOOLS.slice(0, 2).map((tool, idx) => (
                 <Fab
                   key={idx}
                   sx={{
@@ -239,10 +243,10 @@ function MixedStage({
 
 function MixedAxesCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
       <CardHeading title="Mixed axes" caption="Corners and centre" />
 
-      <Box sx={{ position: 'relative', aspectRatio: '1', mt: 1 }}>
+      <Box sx={{ position: 'relative', flexGrow: 1, mt: 1, minHeight: 0 }}>
         <MixedStage
           directions={['left', 'left', 'left', 'down']}
           justify="flex-end"
@@ -265,10 +269,10 @@ function MixedAxesCard() {
 
 function ThreeSidesCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
       <CardHeading title="Three sides" caption="120° each" />
 
-      <Box sx={{ position: 'relative', aspectRatio: '1', mt: 1 }}>
+      <Box sx={{ position: 'relative', flexGrow: 1, mt: 1, minHeight: 0 }}>
         <MixedStage directions={['up', 'left', 'right', 'up']} justify="center" align="center" />
       </Box>
     </Paper>
@@ -277,17 +281,18 @@ function ThreeSidesCard() {
 
 function RadialCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
       <CardHeading title="Radial" caption="Ring around the anchor" />
 
       {/* A radial group is centred on the anchor in both axes, so a centring stage
           keeps the collapsed button still while the ring grows around it. */}
       <Box
         sx={{
+          flexGrow: 1,
+          minHeight: 0,
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: 200,
           mt: 1,
         }}
       >
