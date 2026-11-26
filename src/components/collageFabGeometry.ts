@@ -193,7 +193,7 @@ export function getItemGeometry(
 }
 
 function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): CollageFabItemGeometry {
-  const { count, size, gap, fadeWidth, open } = ownerState;
+  const { count, size, gap, fadeWidth, ringPeek, open } = ownerState;
   const step = ownerState.radialStep;
   const offset = open ? getItemOffset(index, ownerState) : ORIGIN;
   // Every child of a ring travels one pitch, so the mask image has to reach that far
@@ -208,7 +208,7 @@ function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): Coll
   const window = clean(step + fade);
   // The anchor is the base disc, so each petal gives up the hub it covers and ramps
   // back in over one cut width: the centre blends into the rim and back.
-  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2)}px)`;
+  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - ringPeek)}px, #000 ${clean(size / 2)}px)`;
   const wedge =
     count > 1 && index > 0
       ? conic(from, fade, index === count - 1 ? step : step + fade, window)
@@ -243,7 +243,7 @@ function getSectorGeometry(
   index: number,
   ownerState: CollageFabOwnerState,
 ): CollageFabItemGeometry {
-  const { count, size, fadeWidth, open } = ownerState;
+  const { count, size, fadeWidth, ringPeek, open } = ownerState;
   const directions = Array.from({ length: count }, (_, child) => directionOf(child, ownerState));
   const side = directions[index];
   const sides = [...new Set(directions.slice(1))].sort(
@@ -276,7 +276,7 @@ function getSectorGeometry(
 
   // The anchor is the base disc, so each side gives up the hub it covers and ramps
   // back in over one cut width, exactly like a ring.
-  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2)}px)`;
+  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - ringPeek)}px, #000 ${clean(size / 2)}px)`;
   const sector = conic(
     start - before - fade / 2,
     fade,

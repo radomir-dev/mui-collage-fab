@@ -307,11 +307,11 @@ describe('mixed directions', () => {
 });
 
 describe('radial rim blend', () => {
-  it('cuts the anchor hub out of every petal and ramps back in over the cut width', () => {
+  it('keeps the ring inside the button and ramps it into the anchor', () => {
     const item = getItemGeometry(1, state({ spread: 'radial', count: 4, radialStep: 90 }));
 
     expect(item.maskImage).toContain('radial-gradient(circle at 50% 50%');
-    expect(item.maskImage).toContain('22px'); // size / 2 - fadeWidth / 2
+    expect(item.maskImage).toContain('26px'); // size / 2 - ringPeek
     expect(item.maskImage).toContain('28px'); // size / 2
     expect(item.maskComposite).toBe('intersect');
   });
