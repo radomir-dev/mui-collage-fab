@@ -1,3 +1,10 @@
+# [0.17.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.16.0...v0.17.0) (2026-11-26)
+
+
+### Features
+
+* **directions:** give the mixed collage the same even collar ([#103](https://github.com/radomir-dev/mui-collage-fab/issues/103)) ([4744e6b](https://github.com/radomir-dev/mui-collage-fab/commit/4744e6b80e80b52378f50ad4dc536a0bc77b8d23))
+
 # [0.16.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.15.0...v0.16.0) (2026-11-26)
 
 
