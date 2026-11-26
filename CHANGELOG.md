@@ -1,3 +1,10 @@
+# [0.10.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.9.0...v0.10.0) (2026-11-26)
+
+
+### Features
+
+* **radial:** feather the anchor into the rim ([#87](https://github.com/radomir-dev/mui-collage-fab/issues/87)) ([f24289d](https://github.com/radomir-dev/mui-collage-fab/commit/f24289d6dfe8c2206e9ecfacab8a6bb91da015f3))
+
 # [0.9.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.8.0...v0.9.0) (2026-11-26)
 
 

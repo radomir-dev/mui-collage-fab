@@ -1,6 +1,6 @@
 {
   "name": "mui-collage-fab",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Material UI floating action button that unfolds a stack of overlapping Fab circles into a row, a fan or a ring.",
   "license": "MIT",
   "author": "Radomir Wojtera",
