@@ -46,6 +46,7 @@ const TRIGGERS: Record<CollageFabTrigger, string> = {
   hover: 'Opens on mouse enter, closes on mouse leave and toggles on touch or pen tap.',
   click: 'Toggles on any click, regardless of pointer type.',
   manual: 'Disables all built-in pointer interaction — drive the group through open instead.',
+  auto: 'Hovers where the primary pointer can hover, and toggles on click elsewhere.',
 };
 
 const BEHAVIOR_NOTES = [

@@ -646,6 +646,7 @@ export function PlaygroundPage() {
                       <ToggleButton value="hover">Hover</ToggleButton>
                       <ToggleButton value="click">Click</ToggleButton>
                       <ToggleButton value="manual">Manual</ToggleButton>
+                      <ToggleButton value="auto">Auto</ToggleButton>
                     </ToggleButtonGroup>
                   </ControlRow>
 

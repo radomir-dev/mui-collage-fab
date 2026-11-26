@@ -18,7 +18,7 @@ export type CollageFabDirection = 'left' | 'right' | 'up' | 'down';
 /**
  * How the group reacts to pointers.
  */
-export type CollageFabTrigger = 'hover' | 'click' | 'manual';
+export type CollageFabTrigger = 'hover' | 'click' | 'manual' | 'auto';
 
 /**
  * Diameter of every button. Named sizes resolve to small 40px, medium 48px and
@@ -231,7 +231,8 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
   /**
    * How the group reacts to pointers. `'hover'` opens on mouse enter, closes on
    * mouse leave and toggles on touch or pen tap; `'click'` toggles on any click;
-   * `'manual'` disables all built-in pointer interaction.
+   * `'manual'` disables all built-in pointer interaction; `'auto'` behaves like
+   * `'hover'` where the primary pointer can hover and like `'click'` elsewhere.
    */
   trigger?: CollageFabTrigger;
   /**
@@ -279,6 +280,14 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    * `(ownerState) => props` callback, which is the per-child escape hatch.
    */
   slotProps?: CollageFabSlotsAndSlotProps['slotProps'];
+}
+
+function canHover(): boolean {
+  return (
+    typeof window === 'undefined' ||
+    !window.matchMedia ||
+    window.matchMedia('(hover: hover)').matches
+  );
 }
 
 function getTransitionTiming(duration: number, easing: string): string {
@@ -487,7 +496,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       variant = COLLAGE_FAB_DEFAULTS.variant,
       gap = COLLAGE_FAB_DEFAULTS.gap,
       fadeWidth = COLLAGE_FAB_DEFAULTS.fadeWidth,
-      trigger = COLLAGE_FAB_DEFAULTS.trigger,
+      trigger: triggerProp = COLLAGE_FAB_DEFAULTS.trigger,
       open: openProp,
       defaultOpen = COLLAGE_FAB_DEFAULTS.defaultOpen,
       onOpen,
@@ -519,6 +528,8 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       [childArray, directionsProp, direction],
     );
 
+    const resolvedTrigger = triggerProp === 'auto' ? (canHover() ? 'hover' : 'click') : triggerProp;
+
     const ownerState: CollageFabOwnerState = {
       open,
       direction,
@@ -526,7 +537,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       spread,
       radialStart,
       radialStep: radialStepProp ?? 360 / Math.max(count - 1, 1),
-      trigger,
+      trigger: resolvedTrigger,
       size: resolveSize(size),
       variant,
       cornerRadius: CORNER_RADIUS[variant],
@@ -562,21 +573,21 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
     );
 
     const handlePointerEnter = (event: React.PointerEvent<HTMLDivElement>) => {
-      if (trigger !== 'hover' || event.pointerType !== 'mouse') {
+      if (resolvedTrigger !== 'hover' || event.pointerType !== 'mouse') {
         return;
       }
       setOpenState(true, event);
     };
 
     const handlePointerLeave = (event: React.PointerEvent<HTMLDivElement>) => {
-      if (trigger !== 'hover' || event.pointerType !== 'mouse') {
+      if (resolvedTrigger !== 'hover' || event.pointerType !== 'mouse') {
         return;
       }
       setOpenState(false, event);
     };
 
     const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-      if (trigger === 'manual') {
+      if (resolvedTrigger === 'manual') {
         return;
       }
       lastPointerTypeRef.current = event.pointerType;
@@ -601,10 +612,10 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
     };
 
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
-      if (trigger === 'manual') {
+      if (resolvedTrigger === 'manual') {
         return;
       }
-      if (trigger === 'click') {
+      if (resolvedTrigger === 'click') {
         setOpenState(!open, event);
         return;
       }
@@ -616,7 +627,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (trigger === 'manual') {
+      if (resolvedTrigger === 'manual') {
         return;
       }
       if (open) {
@@ -653,7 +664,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       additionalProps: {
         ref: handleRootRef,
         role: 'group',
-        tabIndex: !open && trigger !== 'manual' ? 0 : -1,
+        tabIndex: !open && resolvedTrigger !== 'manual' ? 0 : -1,
         onPointerEnter: handlePointerEnter,
         onPointerLeave: handlePointerLeave,
         onPointerDown: handlePointerDown,
@@ -691,7 +702,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
             geometry={getItemGeometry(index, ownerState)}
             className={classes.item}
             component={ItemComponent}
-            inert={!open && (trigger !== 'manual' || index > 0)}
+            inert={!open && (resolvedTrigger !== 'manual' || index > 0)}
             itemRefs={itemRefs}
             slotProps={slotProps?.item}
           >
@@ -701,7 +712,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       </RootComponent>
     );
 
-    if (disableClickAway || trigger === 'manual') {
+    if (disableClickAway || resolvedTrigger === 'manual') {
       return group;
     }
 
