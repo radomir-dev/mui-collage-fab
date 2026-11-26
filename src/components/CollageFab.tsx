@@ -39,9 +39,6 @@ export type CollageFabSpread = 'line' | 'radial';
 
 // `'rounded'` scales with the button so its corner reads the same at every size;
 // 25% stays a rounded square, where a circle would need 50%.
-// A collapsed ring keeps a hairline of each petal outside the anchor.
-const COLLAPSED_RING_SCALE = 1.08;
-
 const CORNER_RADIUS: Record<CollageFabVariant, number | string> = {
   circular: '50%',
   rounded: '25%',
@@ -114,6 +111,8 @@ export interface CollageFabOwnerState {
   gap: number;
   /** The fade width in pixels. */
   fadeWidth: number;
+  /** How far the petals overhang the anchor while a radial group is collapsed. */
+  ringPeek: number;
   /** The number of valid children currently rendered. */
   count: number;
   /** The morph duration in milliseconds. */
@@ -225,9 +224,15 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    */
   gap?: number;
   /**
-   * Width in pixels of the soft cut line between two slices.
+   * Width in pixels of the soft cut line between two slices. On a ring it is also
+   * how soft the seam between two petals is, and between the last petal and the anchor.
    */
   fadeWidth?: number;
+  /**
+   * How many pixels the petals of a collapsed radial group stick out past the anchor,
+   * leaving a rim of their colours around the button. `0` hides them completely.
+   */
+  ringPeek?: number;
   /**
    * How the group reacts to pointers. `'hover'` opens on mouse enter, closes on
    * mouse leave and toggles on touch or pen tap; `'click'` toggles on any click;
@@ -354,8 +359,10 @@ const CollageFabItemRoot = styled('div', {
     open,
     spread,
     count,
+    ringPeek,
   } = ownerState;
-  const peeking = !open && spread === 'radial' && count > 1 && index > 0;
+  const peeking = !open && spread === 'radial' && count > 1 && index > 0 && ringPeek > 0;
+  const peekScale = 1 + (2 * ringPeek) / size;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
@@ -386,7 +393,7 @@ const CollageFabItemRoot = styled('div', {
     zIndex: ownerState.spread === 'radial' ? ownerState.count - index : index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
-    transform: `${geometry.translate} scale(${peeking ? COLLAPSED_RING_SCALE : 1})`,
+    transform: `${geometry.translate} scale(${peeking ? peekScale : 1})`,
     WebkitMaskImage: geometry.maskImage,
     maskImage: geometry.maskImage,
     WebkitMaskSize: geometry.maskSize,
@@ -496,6 +503,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       variant = COLLAGE_FAB_DEFAULTS.variant,
       gap = COLLAGE_FAB_DEFAULTS.gap,
       fadeWidth = COLLAGE_FAB_DEFAULTS.fadeWidth,
+      ringPeek = COLLAGE_FAB_DEFAULTS.ringPeek,
       trigger: triggerProp = COLLAGE_FAB_DEFAULTS.trigger,
       open: openProp,
       defaultOpen = COLLAGE_FAB_DEFAULTS.defaultOpen,
@@ -543,6 +551,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
       cornerRadius: CORNER_RADIUS[variant],
       gap,
       fadeWidth,
+      ringPeek,
       count,
       transitionDuration,
       transitionEasing,

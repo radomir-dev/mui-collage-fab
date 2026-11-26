@@ -18,6 +18,7 @@ function state(overrides: Partial<CollageFabOwnerState> = {}): CollageFabOwnerSt
     cornerRadius: '50%',
     gap: 16,
     fadeWidth: 12,
+    ringPeek: 2,
     spread: 'line',
     radialStart: 0,
     radialStep: 120,

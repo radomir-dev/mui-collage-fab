@@ -128,7 +128,7 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
 
   const anchorBox = (await slices.first().boundingBox())!;
   const petalBox = (await slices.nth(1).boundingBox())!;
-  expect(petalBox.width).toBeGreaterThan(anchorBox.width);
+  expect(petalBox.width - anchorBox.width).toBeCloseTo(4, 0);
 
   await group.hover();
   await page.waitForTimeout(700);
