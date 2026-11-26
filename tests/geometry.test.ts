@@ -148,7 +148,7 @@ describe('getItemGeometry with radial spread', () => {
 
       const opened = getItemGeometry(index, radial({ open: true }));
       expect(opened.maskImage).toContain('conic-gradient(from ');
-      expect(numbers(opened.maskSize)).toEqual([200, 200]);
+      expect(numbers(opened.maskSize)).toEqual([200, 200, 200, 200]);
     }
   });
 
@@ -303,5 +303,27 @@ describe('mixed directions', () => {
     expect(items[1].maskImage).toBe(items[2].maskImage);
     expect(spanOf(items[3].maskImage)).toBeCloseTo(180, 0);
     expect(Math.abs(startOf(items[1].maskImage) - startOf(items[3].maskImage))).toBeCloseTo(180, 0);
+  });
+});
+
+describe('radial rim blend', () => {
+  it('cuts the anchor hub out of every petal and ramps back in over the cut width', () => {
+    const item = getItemGeometry(1, state({ spread: 'radial', count: 4, radialStep: 90 }));
+
+    expect(item.maskImage).toContain('radial-gradient(circle at 50% 50%');
+    expect(item.maskImage).toContain('22px'); // size / 2 - fadeWidth / 2
+    expect(item.maskImage).toContain('34px'); // size / 2 + fadeWidth / 2
+    expect(item.maskComposite).toBe('intersect');
+  });
+
+  it('keeps both layers pinned to the same container point', () => {
+    const item = getItemGeometry(
+      1,
+      state({ spread: 'radial', count: 4, radialStep: 90, open: true }),
+    );
+    const [x1, y1, x2, y2] = numbers(item.maskPosition);
+
+    expect(x1).toBeCloseTo(x2, 6);
+    expect(y1).toBeCloseTo(y2, 6);
   });
 });
