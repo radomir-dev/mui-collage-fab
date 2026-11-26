@@ -363,6 +363,13 @@ const CollageFabItemRoot = styled('div', {
   } = ownerState;
   const peeking = !open && spread === 'radial' && count > 1 && index > 0 && ringPeek > 0;
   const peekScale = 1 + (2 * ringPeek) / size;
+  // The rim would meet the anchor at a hard circle, so the anchor gives up its outer
+  // edge: the petals it covers show through a fade the width of the cut line.
+  const feathered = !open && spread === 'radial' && count > 1 && index === 0;
+  const feather = Math.min(ownerState.fadeWidth / 4, size / 8);
+  const maskImage = feathered
+    ? `radial-gradient(circle, #000 ${size / 2 - feather}px, #0000 ${size / 2}px)`
+    : geometry.maskImage;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
@@ -394,12 +401,12 @@ const CollageFabItemRoot = styled('div', {
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
     transform: `${geometry.translate} scale(${peeking ? peekScale : 1})`,
-    WebkitMaskImage: geometry.maskImage,
-    maskImage: geometry.maskImage,
-    WebkitMaskSize: geometry.maskSize,
-    maskSize: geometry.maskSize,
-    WebkitMaskPosition: geometry.maskPosition,
-    maskPosition: geometry.maskPosition,
+    WebkitMaskImage: maskImage,
+    maskImage,
+    WebkitMaskSize: feathered ? '100% 100%' : geometry.maskSize,
+    maskSize: feathered ? '100% 100%' : geometry.maskSize,
+    WebkitMaskPosition: feathered ? '0px 0px' : geometry.maskPosition,
+    maskPosition: feathered ? '0px 0px' : geometry.maskPosition,
     WebkitMaskRepeat: 'no-repeat',
     maskRepeat: 'no-repeat',
     transition: `transform ${timing}, -webkit-mask-position ${timing}, mask-position ${timing}`,
