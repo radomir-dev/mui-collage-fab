@@ -126,6 +126,10 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
   // outrank them instead, or every wedge paints over the button.
   expect(stacking[0]).toBeGreaterThan(Math.max(...stacking.slice(1)));
 
+  const anchorBox = (await slices.first().boundingBox())!;
+  const petalBox = (await slices.nth(1).boundingBox())!;
+  expect(petalBox.width).toBeGreaterThan(anchorBox.width);
+
   await group.hover();
   await page.waitForTimeout(700);
 
