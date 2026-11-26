@@ -269,6 +269,71 @@ function DirectionSquare({
   );
 }
 
+interface MixedDemo {
+  title: string;
+  caption: string;
+  directions: CollageFabDirection[];
+  justifyContent: 'flex-start' | 'flex-end';
+  alignItems: 'flex-start' | 'flex-end';
+}
+
+const MIXED_DEMOS: MixedDemo[] = [
+  {
+    title: 'Left and down',
+    caption: 'Pins top right',
+    directions: ['left', 'left', 'left', 'down'],
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+  },
+  {
+    title: 'Right and up',
+    caption: 'Pins bottom left',
+    directions: ['right', 'right', 'right', 'up'],
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+  },
+];
+
+function MixedDirectionsCard({ demo }: { demo: MixedDemo }) {
+  return (
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+      <CardHeading title={demo.title} caption={demo.caption} />
+
+      {/* The anchor keeps its corner, so the stage pins that corner and lets the
+          group grow away from it. */}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: demo.justifyContent,
+          alignItems: demo.alignItems,
+          minHeight: 148,
+          mt: 1,
+        }}
+      >
+        <CollageFab
+          directions={demo.directions}
+          size={DIRECTION_SIZE}
+          gap={DIRECTION_GAP}
+          fadeWidth={12}
+        >
+          {MOCK_TOOLS.slice(0, DIRECTION_BUTTON_COUNT).map((tool, idx) => (
+            <Fab
+              key={idx}
+              sx={{
+                bgcolor: tool.color,
+                color: 'white',
+                '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
+              }}
+            >
+              {tool.icon}
+            </Fab>
+          ))}
+        </CollageFab>
+      </Box>
+    </Paper>
+  );
+}
+
 export function DemoPage() {
   return (
     <Container maxWidth="xl" sx={{ py: 4 }}>
@@ -310,6 +375,16 @@ export function DemoPage() {
       >
         <DirectionSquare label="Horizontal" demos={HORIZONTAL_DEMOS} />
         <DirectionSquare label="Vertical" demos={VERTICAL_DEMOS} row />
+      </Box>
+
+      <Typography variant="h5" fontWeight="bold" color="white" align="center" mt={3} mb={2}>
+        Mixed axes
+      </Typography>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
+        {MIXED_DEMOS.map((demo) => (
+          <MixedDirectionsCard key={demo.title} demo={demo} />
+        ))}
       </Box>
     </Container>
   );
