@@ -1,3 +1,10 @@
+## [0.17.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.17.0...v0.17.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **layout:** stop resizing the box around a centred group ([#106](https://github.com/radomir-dev/mui-collage-fab/issues/106)) ([7519b83](https://github.com/radomir-dev/mui-collage-fab/commit/7519b8315cadda8ee3607b436415280093168cc1))
+
 # [0.17.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.16.0...v0.17.0) (2026-11-26)
 
 
