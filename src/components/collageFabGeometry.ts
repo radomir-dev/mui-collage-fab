@@ -220,7 +220,7 @@ function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): Coll
   const window = clean(step + fade);
   // The anchor is the base disc, so each petal gives up the hub it covers and ramps
   // back in over one cut width: the centre blends into the rim and back.
-  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2 + fadeWidth / 2)}px)`;
+  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2)}px)`;
   const wedge =
     count > 1 && index > 0
       ? conic(from, fade, index === count - 1 ? step : step + fade, window)
@@ -286,13 +286,23 @@ function getSectorGeometry(
   // edge fades twice.
   const closes = slot === sides.length - 1;
 
+  // The anchor is the base disc, so each side gives up the hub it covers and ramps
+  // back in over one cut width, exactly like a ring.
+  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2)}px)`;
+  const sector = conic(
+    start - before - fade / 2,
+    fade,
+    closes ? window : window + fade,
+    window + fade,
+  );
+  const position = `${-offset.x - travel}px ${-offset.y - travel}px`;
+
   return {
     translate: translateCss(offset, offset.x !== 0),
-    maskImage:
-      index > 0
-        ? conic(start - before - fade / 2, fade, closes ? window : window + fade, window + fade)
-        : 'none',
-    maskSize: `${extent}px ${extent}px`,
-    maskPosition: `${-offset.x - travel}px ${-offset.y - travel}px`,
+    maskImage: index > 0 ? `${sector}, ${hub}` : 'none',
+    maskSize: `${extent}px ${extent}px, ${extent}px ${extent}px`,
+    maskPosition: `${position}, ${position}`,
+    maskComposite: 'intersect',
+    WebkitMaskComposite: 'source-in',
   };
 }
