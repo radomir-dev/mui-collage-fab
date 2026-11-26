@@ -1,4 +1,9 @@
-import type { CollageFabItemGeometry, CollageFabOwnerState, CollageFabSize } from './CollageFab';
+import type {
+  CollageFabDirection,
+  CollageFabItemGeometry,
+  CollageFabOwnerState,
+  CollageFabSize,
+} from './CollageFab';
 
 const SIZE_MAP: Record<'small' | 'medium' | 'large', number> = {
   small: 40,
@@ -10,11 +15,33 @@ export function resolveSize(size: CollageFabSize): number {
   return typeof size === 'number' ? size : SIZE_MAP[size];
 }
 
+interface Vector {
+  x: number;
+  y: number;
+}
+
+const DIRECTION_VECTORS: Record<CollageFabDirection, Vector> = {
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+};
+
+function translateCss({ x, y }: Vector, horizontal: boolean): string {
+  if (x !== 0 && y !== 0) {
+    return `translate(${x}px, ${y}px)`;
+  }
+  return horizontal ? `translateX(${x}px)` : `translateY(${y}px)`;
+}
+
 /**
  * Every mask is an absolutely positioned window that is slid against the item's
  * own translation, which pins the visible cut line to a fixed position in the
  * container while the button morphs. `spread` is the distance the mask image has
  * to cover to reach across the whole expanded row, so it scales with `gap`.
+ *
+ * Both the travel and the cut line are vectors, so the same arithmetic carries
+ * over to directions that are not aligned with an axis.
  */
 export function getItemGeometry(
   index: number,
@@ -23,34 +50,36 @@ export function getItemGeometry(
   const { count, size, gap, fadeWidth, open, direction } = ownerState;
   const pitch = size + gap;
   const spread = (count - 1) * pitch + size + fadeWidth;
-  const offset = index * pitch;
-  const leading = direction === 'left' || direction === 'up';
-  const horizontal = direction === 'left' || direction === 'right';
+  const vector = DIRECTION_VECTORS[direction];
+  const horizontal = vector.x !== 0;
+  const leading = (horizontal ? vector.x : vector.y) < 0;
+  const travel = open ? index * pitch : 0;
+  const offset: Vector = { x: vector.x * travel, y: vector.y * travel };
 
-  // Slice boundaries. The anchor is pushed a whole `spread` past the opaque window
-  // so its cut line never crosses the button: it is never clipped.
+  // Slice boundaries, measured inside the item from the edge the group fans towards.
+  // The anchor takes a whole `spread` so its cut line never crosses the button: it is
+  // never clipped.
   const boundary = index === 0 ? spread : (count - index) * (size / count);
   const anchorBoundary = index === 0 ? -fadeWidth / 2 : index * (size / count);
   // Collapsed, every slice sits on the anchor; the mask stays put and only the cut
   // lines separate them.
-  const shift = open ? offset : 0;
-
-  const ramp = leading
-    ? boundary - spread - fadeWidth / 2 + shift
-    : anchorBoundary - spread - fadeWidth / 2 - shift;
+  const cut = leading ? boundary : anchorBoundary;
+  const ramp = cut - spread - fadeWidth / 2;
+  const base: Vector = horizontal ? { x: ramp, y: 0 } : { x: 0, y: ramp };
+  // The mask slides against the travel, so `mask-position` and `translate` cancel out
+  // and the cut line stays where it was while collapsed.
+  const maskPosition: Vector = { x: base.x - offset.x, y: base.y - offset.y };
 
   // The gradient axis stays fixed per orientation; only the stop order flips.
   const stops = leading
     ? `#000 0px, #000 ${spread}px, transparent ${spread + fadeWidth}px, transparent ${2 * spread}px`
     : `transparent 0px, transparent ${spread}px, #000 ${spread + fadeWidth}px, #000 ${2 * spread}px`;
 
-  const translate = `${leading ? '-' : ''}${shift}`;
-
   return {
-    translate: horizontal ? `translateX(${translate}px)` : `translateY(${translate}px)`,
+    translate: translateCss(offset, horizontal),
     maskImage:
       count > 1 ? `linear-gradient(${horizontal ? 'to right' : 'to bottom'}, ${stops})` : 'none',
     maskSize: horizontal ? `${2 * spread}px 100%` : `100% ${2 * spread}px`,
-    maskPosition: horizontal ? `${ramp}px 0px` : `0px ${ramp}px`,
+    maskPosition: `${maskPosition.x}px ${maskPosition.y}px`,
   };
 }
