@@ -1,3 +1,10 @@
+# [0.5.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.4.0...v0.5.0) (2026-11-26)
+
+
+### Features
+
+* **radial:** leave a ring of petals behind the anchor ([#75](https://github.com/radomir-dev/mui-collage-fab/issues/75)) ([a7e8946](https://github.com/radomir-dev/mui-collage-fab/commit/a7e894678517a698aa26152bd3486f22da550e26))
+
 # [0.4.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.3.0...v0.4.0) (2026-11-26)
 
 
