@@ -1,3 +1,10 @@
+# [0.2.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.4...v0.2.0) (2026-11-26)
+
+
+### Features
+
+* **geometry:** grow the container on both axes ([#59](https://github.com/radomir-dev/mui-collage-fab/issues/59)) ([587f7d3](https://github.com/radomir-dev/mui-collage-fab/commit/587f7d3375a912269ed03bd5be9a4ec352ecb303))
+
 ## [0.1.4](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.3...v0.1.4) (2026-11-14)
 
 
