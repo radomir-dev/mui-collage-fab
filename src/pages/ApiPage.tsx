@@ -376,11 +376,13 @@ export function ApiPage() {
         a smaller step.
       </Typography>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
-        The anchor never joins the ring. It keeps its place at the centre and stays unclipped, which
-        is what gives the collapsed group its opaque base: each wedge fades in from the one before
-        it, and the last one fades back into that base, so the collapsed stack has no hard seam.
-        Past eight children at the default size the buttons stop fitting around the circle and the
-        wedges start clipping the overlap.
+        The anchor never joins the ring. It is the collapsed group's base disc, and every petal cuts
+        the hub it covers out of its own mask and ramps back in over{' '}
+        <InlineCode>fadeWidth</InlineCode>, so the centre blends into the petals and the petals into
+        each other. While they are stacked the petals also grow by <InlineCode>ringPeek</InlineCode>
+        , which leaves their colours as an even collar around the button. Past eight children at the
+        default size the buttons stop fitting around the circle and the wedges start clipping the
+        overlap.
       </Typography>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
         A ring keeps the root box a single button wide and paints outside it, which is what holds
