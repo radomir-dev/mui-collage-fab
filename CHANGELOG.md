@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.2.0...v0.3.0) (2026-11-26)
+
+
+### Features
+
+* allow a direction per child ([#57](https://github.com/radomir-dev/mui-collage-fab/issues/57)) ([a9b418d](https://github.com/radomir-dev/mui-collage-fab/commit/a9b418d0cc0dbfe4aeeb210f586f0ee7d3af0276))
+
 # [0.2.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.1.4...v0.2.0) (2026-11-26)
 
 
