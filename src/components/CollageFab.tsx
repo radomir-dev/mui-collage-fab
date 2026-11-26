@@ -39,6 +39,9 @@ export type CollageFabSpread = 'line' | 'radial';
 
 // `'rounded'` scales with the button so its corner reads the same at every size;
 // 25% stays a rounded square, where a circle would need 50%.
+// A collapsed ring keeps a hairline of each petal outside the anchor.
+const COLLAPSED_RING_SCALE = 1.08;
+
 const CORNER_RADIUS: Record<CollageFabVariant, number | string> = {
   circular: '50%',
   rounded: '25%',
@@ -332,7 +335,18 @@ const CollageFabItemRoot = styled('div', {
   slot: 'item',
   overridesResolver: (_props, styles) => styles.item,
 })(({ ownerState }: { ownerState: CollageFabItemOwnerState }) => {
-  const { size, index, geometry, cornerRadius, transitionDuration, transitionEasing } = ownerState;
+  const {
+    size,
+    index,
+    geometry,
+    cornerRadius,
+    transitionDuration,
+    transitionEasing,
+    open,
+    spread,
+    count,
+  } = ownerState;
+  const peeking = !open && spread === 'radial' && count > 1 && index > 0;
   const { align } = getGroupGeometry(ownerState);
   const placement = {
     ...(align.x === 'end'
@@ -363,7 +377,7 @@ const CollageFabItemRoot = styled('div', {
     zIndex: ownerState.spread === 'radial' ? ownerState.count - index : index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
-    transform: geometry.translate,
+    transform: `${geometry.translate} scale(${peeking ? COLLAPSED_RING_SCALE : 1})`,
     WebkitMaskImage: geometry.maskImage,
     maskImage: geometry.maskImage,
     WebkitMaskSize: geometry.maskSize,
