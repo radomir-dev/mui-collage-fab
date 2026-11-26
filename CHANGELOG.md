@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.5.1...v0.6.0) (2026-11-26)
+
+
+### Features
+
+* **trigger:** pick hover or click from the pointer ([#79](https://github.com/radomir-dev/mui-collage-fab/issues/79)) ([3b9b47c](https://github.com/radomir-dev/mui-collage-fab/commit/3b9b47c99bd93a6a6b20f9500bc8078892dac591))
+
 ## [0.5.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.5.0...v0.5.1) (2026-11-26)
 
 
