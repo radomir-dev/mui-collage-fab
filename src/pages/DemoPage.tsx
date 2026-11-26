@@ -148,7 +148,11 @@ const DIRECTION_CORNERS = [
 
 function DirectionCornersCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 460, flexShrink: 0 }}>
+    <Paper
+      elevation={3}
+      sx={{ ...CARD_SX, p: 1.5, width: 460, flexShrink: 0 }}
+      data-testid="direction-card"
+    >
       <Box sx={{ position: 'relative', aspectRatio: '1' }}>
         {DIRECTION_CORNERS.map((corner) => (
           <Box
