@@ -269,66 +269,93 @@ function DirectionSquare({
   );
 }
 
+interface MixedGroup {
+  directions: CollageFabDirection[];
+  count: number;
+  justify: 'flex-start' | 'flex-end' | 'center';
+  align: 'flex-start' | 'flex-end' | 'center';
+}
+
 interface MixedDemo {
   title: string;
   caption: string;
-  directions: CollageFabDirection[];
-  justifyContent: 'flex-start' | 'flex-end';
-  alignItems: 'flex-start' | 'flex-end';
+  width: number;
+  groups: MixedGroup[];
 }
 
 const MIXED_DEMOS: MixedDemo[] = [
   {
-    title: 'Left and down',
-    caption: 'Pins top right',
-    directions: ['left', 'left', 'left', 'down'],
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
+    title: 'Opposite corners',
+    caption: 'Bottom left + top right',
+    width: 560,
+    groups: [
+      {
+        directions: ['right', 'right', 'right', 'up'],
+        count: DIRECTION_BUTTON_COUNT,
+        justify: 'flex-start',
+        align: 'flex-end',
+      },
+      {
+        directions: ['left', 'left', 'left', 'down'],
+        count: DIRECTION_BUTTON_COUNT,
+        justify: 'flex-end',
+        align: 'flex-start',
+      },
+    ],
   },
   {
-    title: 'Right and up',
-    caption: 'Pins bottom left',
-    directions: ['right', 'right', 'right', 'up'],
-    justifyContent: 'flex-start',
-    alignItems: 'flex-end',
+    title: 'All four sides',
+    caption: 'Centred both ways',
+    width: 280,
+    groups: [
+      {
+        directions: ['up', 'right', 'down', 'left', 'up'],
+        count: 5,
+        justify: 'center',
+        align: 'center',
+      },
+    ],
   },
 ];
 
 function MixedDirectionsCard({ demo }: { demo: MixedDemo }) {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: demo.width, maxWidth: '100%' }}>
       <CardHeading title={demo.title} caption={demo.caption} />
 
-      {/* The anchor keeps its corner, so the stage pins that corner and lets the
-          group grow away from it. */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: demo.justifyContent,
-          alignItems: demo.alignItems,
-          minHeight: 148,
-          mt: 1,
-        }}
-      >
-        <CollageFab
-          directions={demo.directions}
-          size={DIRECTION_SIZE}
-          gap={DIRECTION_GAP}
-          fadeWidth={12}
-        >
-          {MOCK_TOOLS.slice(0, DIRECTION_BUTTON_COUNT).map((tool, idx) => (
-            <Fab
-              key={idx}
-              sx={{
-                bgcolor: tool.color,
-                color: 'white',
-                '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
-              }}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
+        {demo.groups.map((group, index) => (
+          <Box
+            key={index}
+            sx={{
+              flex: '1 1 200px',
+              minHeight: 260,
+              display: 'flex',
+              justifyContent: group.justify,
+              alignItems: group.align,
+            }}
+          >
+            <CollageFab
+              directions={group.directions}
+              size={DIRECTION_SIZE}
+              gap={DIRECTION_GAP}
+              fadeWidth={12}
             >
-              {tool.icon}
-            </Fab>
-          ))}
-        </CollageFab>
+              {MOCK_TOOLS.slice(0, group.count).map((tool, idx) => (
+                <Fab
+                  key={idx}
+                  sx={{
+                    bgcolor: tool.color,
+                    color: 'white',
+                    '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
+                  }}
+                >
+                  {tool.icon}
+                </Fab>
+              ))}
+            </CollageFab>
+          </Box>
+        ))}
       </Box>
     </Paper>
   );
