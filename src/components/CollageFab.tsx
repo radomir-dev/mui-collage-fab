@@ -299,12 +299,24 @@ const CollageFabRoot = styled('div', {
   slot: 'root',
   overridesResolver: (_props, styles) => styles.root,
 })(({ ownerState }: { ownerState: CollageFabOwnerState }) => {
-  const { open, size, transitionDuration, transitionEasing } = ownerState;
+  const { open, size, spread, gap, count, transitionDuration, transitionEasing } = ownerState;
   const { extent } = getGroupGeometry(ownerState);
   const timing = getTransitionTiming(transitionDuration, transitionEasing);
+  const pad = open && spread === 'radial' && count > 1 ? size + gap : 0;
 
   return {
     position: 'relative',
+    // The ring paints outside the root's box, so without a pad the gap between the
+    // anchor and a child leaves the root and collapses a hover-opened group.
+    ...(pad > 0 && {
+      '&::after': {
+        content: '""',
+        position: 'absolute',
+        inset: -pad,
+        borderRadius: '50%',
+        zIndex: -1,
+      },
+    }),
     width: open ? extent.width : size,
     height: open ? extent.height : size,
     transition: `width ${timing}, height ${timing}`,
