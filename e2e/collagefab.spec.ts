@@ -85,20 +85,20 @@ test('expanding moves the slice and its mask by the same pitch, in opposite dire
 });
 
 test('a mixed group fans along both axes', async ({ page }) => {
-  const group = card(page, 'Left and down').locator('.MuiCollageFab-root');
+  const group = card(page, 'Opposite corners').locator('.MuiCollageFab-root').first();
   await group.scrollIntoViewIfNeeded();
 
   const slices = group.locator('.MuiCollageFab-item');
   await group.hover();
   await page.waitForTimeout(700);
 
-  const left = await readSlice(slices.nth(1));
-  const down = await readSlice(slices.nth(3));
+  const sideways = await readSlice(slices.nth(1));
+  const upwards = await readSlice(slices.nth(3));
 
-  expect(left.translateX).toBeLessThan(-50);
-  expect(left.translateY).toBe(0);
-  expect(down.translateY).toBeGreaterThan(50);
-  expect(down.translateX).toBe(0);
+  expect(sideways.translateX).toBeGreaterThan(50);
+  expect(sideways.translateY).toBe(0);
+  expect(upwards.translateY).toBeLessThan(-50);
+  expect(upwards.translateX).toBe(0);
 
   const box = (await group.boundingBox())!;
   expect(box.width).toBeGreaterThan(150);
