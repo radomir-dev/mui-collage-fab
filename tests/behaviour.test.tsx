@@ -54,15 +54,16 @@ describe('CollageFab triggers', () => {
     expect(group()).toHaveClass('MuiCollageFab-collapsed');
   });
 
-  it('ignores pointer enter when the trigger is manual', () => {
+  it('leaves only the anchor live while a manual group is collapsed', () => {
     const { group, slices } = renderFab({ trigger: 'manual' });
 
     pointerEnter(group());
 
     expect(group()).toHaveClass('MuiCollageFab-collapsed');
     expect(group()).toHaveAttribute('tabindex', '-1');
-    for (const slice of slices()) {
-      expect(slice).not.toHaveAttribute('aria-hidden');
+    expect(slices()[0]).not.toHaveAttribute('aria-hidden');
+    for (const slice of slices().slice(1)) {
+      expect(slice).toHaveAttribute('aria-hidden', 'true');
     }
   });
 
