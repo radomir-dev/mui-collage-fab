@@ -269,93 +269,71 @@ function DirectionSquare({
   );
 }
 
-interface MixedGroup {
+function MixedStage({
+  directions,
+  justify,
+  align,
+}: {
   directions: CollageFabDirection[];
-  count: number;
   justify: 'flex-start' | 'flex-end' | 'center';
   align: 'flex-start' | 'flex-end' | 'center';
-}
-
-interface MixedDemo {
-  title: string;
-  caption: string;
-  width: number;
-  groups: MixedGroup[];
-}
-
-const MIXED_DEMOS: MixedDemo[] = [
-  {
-    title: 'Opposite corners',
-    caption: 'Bottom left + top right',
-    width: 560,
-    groups: [
-      {
-        directions: ['right', 'right', 'right', 'up'],
-        count: DIRECTION_BUTTON_COUNT,
-        justify: 'flex-start',
-        align: 'flex-end',
-      },
-      {
-        directions: ['left', 'left', 'left', 'down'],
-        count: DIRECTION_BUTTON_COUNT,
-        justify: 'flex-end',
-        align: 'flex-start',
-      },
-    ],
-  },
-  {
-    title: 'All four sides',
-    caption: 'Centred both ways',
-    width: 280,
-    groups: [
-      {
-        directions: ['up', 'right', 'down', 'left', 'up'],
-        count: 5,
-        justify: 'center',
-        align: 'center',
-      },
-    ],
-  },
-];
-
-function MixedDirectionsCard({ demo }: { demo: MixedDemo }) {
+}) {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: demo.width, maxWidth: '100%' }}>
-      <CardHeading title={demo.title} caption={demo.caption} />
-
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
-        {demo.groups.map((group, index) => (
-          <Box
-            key={index}
+    <Box
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        justifyContent: justify,
+        alignItems: align,
+        pointerEvents: 'none',
+      }}
+    >
+      <CollageFab
+        directions={directions}
+        size={DIRECTION_SIZE}
+        gap={DIRECTION_GAP}
+        fadeWidth={12}
+        sx={{ pointerEvents: 'auto' }}
+      >
+        {MOCK_TOOLS.slice(0, directions.length).map((tool, idx) => (
+          <Fab
+            key={idx}
             sx={{
-              flex: '1 1 200px',
-              minHeight: 260,
-              display: 'flex',
-              justifyContent: group.justify,
-              alignItems: group.align,
+              bgcolor: tool.color,
+              color: 'white',
+              '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
             }}
           >
-            <CollageFab
-              directions={group.directions}
-              size={DIRECTION_SIZE}
-              gap={DIRECTION_GAP}
-              fadeWidth={12}
-            >
-              {MOCK_TOOLS.slice(0, group.count).map((tool, idx) => (
-                <Fab
-                  key={idx}
-                  sx={{
-                    bgcolor: tool.color,
-                    color: 'white',
-                    '&:hover': { bgcolor: tool.color, filter: 'brightness(1.2)' },
-                  }}
-                >
-                  {tool.icon}
-                </Fab>
-              ))}
-            </CollageFab>
-          </Box>
+            {tool.icon}
+          </Fab>
         ))}
+      </CollageFab>
+    </Box>
+  );
+}
+
+function MixedAxesCard() {
+  return (
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+      <CardHeading title="Mixed axes" caption="Corners and centre" />
+
+      <Box sx={{ position: 'relative', aspectRatio: '1', mt: 1 }}>
+        <MixedStage
+          directions={['left', 'left', 'left', 'down']}
+          justify="flex-end"
+          align="flex-start"
+        />
+        <MixedStage
+          directions={['right', 'right', 'right', 'up']}
+          justify="flex-start"
+          align="flex-end"
+        />
+        <MixedStage
+          directions={['up', 'right', 'down', 'left', 'up']}
+          justify="center"
+          align="center"
+        />
       </Box>
     </Paper>
   );
@@ -444,9 +422,7 @@ export function DemoPage() {
       </Typography>
 
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
-        {MIXED_DEMOS.map((demo) => (
-          <MixedDirectionsCard key={demo.title} demo={demo} />
-        ))}
+        <MixedAxesCard />
         <RadialCard />
       </Box>
     </Container>
