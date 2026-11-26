@@ -320,16 +320,15 @@ const MIXED_DEMOS: MixedDemo[] = [
 
 function MixedDirectionsCard({ demo }: { demo: MixedDemo }) {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: demo.width, flexShrink: 0 }}>
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: demo.width, maxWidth: '100%' }}>
       <CardHeading title={demo.title} caption={demo.caption} />
 
-      <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
         {demo.groups.map((group, index) => (
           <Box
             key={index}
             sx={{
-              flex: '1 1 0',
-              minWidth: 0,
+              flex: '1 1 200px',
               minHeight: 260,
               display: 'flex',
               justifyContent: group.justify,
