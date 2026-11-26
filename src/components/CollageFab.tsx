@@ -346,8 +346,9 @@ const CollageFabItemRoot = styled('div', {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    // The left-most slices have to stack on top of the right-ward ones.
-    zIndex: index,
+    // The left-most slices have to stack on top of the right-ward ones; on a ring the
+    // anchor has to stack on top of every wedge, so a collapsed ring reads as the button.
+    zIndex: ownerState.spread === 'radial' ? ownerState.count - index : index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
     transform: geometry.translate,

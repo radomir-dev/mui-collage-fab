@@ -119,6 +119,12 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
   await expect(slices.first()).toHaveCSS('mask-image', 'none');
   const closed = await centre(0);
 
+  const anchorOwnsCentre = await slices.first().evaluate((element, point) => {
+    const hit = document.elementFromPoint(point.x, point.y);
+    return hit !== null && element.contains(hit);
+  }, closed);
+  expect(anchorOwnsCentre).toBe(true);
+
   await group.hover();
   await page.waitForTimeout(700);
 
