@@ -1,3 +1,10 @@
+# [0.14.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.13.0...v0.14.0) (2026-11-26)
+
+
+### Features
+
+* **directions:** blend the per-side rim into the anchor hub ([#97](https://github.com/radomir-dev/mui-collage-fab/issues/97)) ([d4d97b6](https://github.com/radomir-dev/mui-collage-fab/commit/d4d97b637903504d05459b5f72779d433db4c3ad))
+
 # [0.13.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.12.0...v0.13.0) (2026-11-26)
 
 
