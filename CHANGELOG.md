@@ -1,3 +1,10 @@
+# [0.8.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.7.0...v0.8.0) (2026-11-26)
+
+
+### Features
+
+* **radial:** let the collapsed rim be sized ([#83](https://github.com/radomir-dev/mui-collage-fab/issues/83)) ([dd91b77](https://github.com/radomir-dev/mui-collage-fab/commit/dd91b77c238660c048eaf48ab74c0454abc5528a))
+
 # [0.7.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.6.0...v0.7.0) (2026-11-26)
 
 
