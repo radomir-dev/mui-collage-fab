@@ -312,7 +312,7 @@ describe('radial rim blend', () => {
 
     expect(item.maskImage).toContain('radial-gradient(circle at 50% 50%');
     expect(item.maskImage).toContain('22px'); // size / 2 - fadeWidth / 2
-    expect(item.maskImage).toContain('34px'); // size / 2 + fadeWidth / 2
+    expect(item.maskImage).toContain('28px'); // size / 2
     expect(item.maskComposite).toBe('intersect');
   });
 
