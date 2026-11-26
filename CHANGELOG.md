@@ -1,3 +1,10 @@
+# [0.4.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.3.0...v0.4.0) (2026-11-26)
+
+
+### Features
+
+* **radial:** add a spread with wedge masks ([#62](https://github.com/radomir-dev/mui-collage-fab/issues/62)) ([314c861](https://github.com/radomir-dev/mui-collage-fab/commit/314c861dc08ed4482fef242d10d8109a583ad307))
+
 # [0.3.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.2.0...v0.3.0) (2026-11-26)
 
 
