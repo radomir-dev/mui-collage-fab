@@ -117,7 +117,7 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   };
 
-  await expect(slices.first()).toHaveCSS('mask-image', 'none');
+  await expect(slices.first()).toHaveCSS('mask-image', /radial-gradient/);
   const closed = await centre(0);
 
   const stacking = await group.evaluate((root) =>
