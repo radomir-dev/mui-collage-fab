@@ -218,15 +218,21 @@ function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): Coll
   // The last wedge fades out into the anchor's disc; every earlier one hands over to
   // the wedge above it and ends hard, so the two never double-fade the same edge.
   const window = clean(step + fade);
+  // The anchor is the base disc, so each petal gives up the hub it covers and ramps
+  // back in over one cut width: the centre blends into the rim and back.
+  const hub = `radial-gradient(circle at 50% 50%, #0000 ${clean(size / 2 - fadeWidth / 2)}px, #000 ${clean(size / 2 + fadeWidth / 2)}px)`;
+  const wedge =
+    count > 1 && index > 0
+      ? conic(from, fade, index === count - 1 ? step : step + fade, window)
+      : 'none';
 
   return {
     translate: translateCss(offset, false),
-    maskImage:
-      count > 1 && index > 0
-        ? conic(from, fade, index === count - 1 ? step : step + fade, window)
-        : 'none',
-    maskSize: `${extent}px ${extent}px`,
-    maskPosition: `${-offset.x - reach}px ${-offset.y - reach}px`,
+    maskImage: count > 1 && index > 0 ? `${wedge}, ${hub}` : 'none',
+    maskSize: `${extent}px ${extent}px, ${extent}px ${extent}px`,
+    maskPosition: `${-offset.x - reach}px ${-offset.y - reach}px, ${-offset.x - reach}px ${-offset.y - reach}px`,
+    maskComposite: 'intersect',
+    WebkitMaskComposite: 'source-in',
   };
 }
 

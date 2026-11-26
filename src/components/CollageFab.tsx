@@ -133,6 +133,10 @@ export interface CollageFabItemGeometry {
   maskSize: string;
   /** The offset that pins the cut line in container space. */
   maskPosition: string;
+  /** How two mask layers combine, when a cut needs more than one. */
+  maskComposite?: string;
+  /** The prefixed form of `maskComposite` for older WebKit. */
+  WebkitMaskComposite?: string;
 }
 
 /**
@@ -377,7 +381,7 @@ const CollageFabItemRoot = styled('div', {
     justifyContent: 'center',
     // The left-most slices have to stack on top of the right-ward ones; on a ring the
     // anchor has to stack on top of every wedge, so a collapsed ring reads as the button.
-    zIndex: ownerState.spread === 'radial' ? ownerState.count - index : index,
+    zIndex: index,
     // Always present, even collapsed: the transform is what makes this wrapper a
     // stacking context, which neutralizes the child's own z-index.
     transform: geometry.translate,
@@ -389,6 +393,8 @@ const CollageFabItemRoot = styled('div', {
     maskPosition: geometry.maskPosition,
     WebkitMaskRepeat: 'no-repeat',
     maskRepeat: 'no-repeat',
+    ...(geometry.maskComposite && { maskComposite: geometry.maskComposite }),
+    ...(geometry.WebkitMaskComposite && { WebkitMaskComposite: geometry.WebkitMaskComposite }),
     transition: `transform ${timing}, -webkit-mask-position ${timing}, mask-position ${timing}`,
     // Strip arbitrary shadows from the children and make them inherit the wrapper's
     // silhouette, so the root controls the global 3D shape.

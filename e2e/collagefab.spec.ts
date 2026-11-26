@@ -137,9 +137,11 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
   const stacking = await group.evaluate((root) =>
     [...root.children].map((child) => Number(getComputedStyle(child).zIndex)),
   );
-  // Collapsed slices are inert, so hit testing cannot see them; the anchor has to
-  // outrank them instead, or every wedge paints over the button.
-  expect(stacking[0]).toBeGreaterThan(Math.max(...stacking.slice(1)));
+  // The anchor is the base disc and every petal rides above it, each with the hub
+  // cut out, so the collapsed group reads as one blended button.
+  expect(stacking[0]).toBe(0);
+  expect(Math.min(...stacking.slice(1))).toBeGreaterThan(0);
+  await expect(slices.nth(1)).toHaveCSS('mask-image', /radial-gradient\(circle, /);
 
   const anchorBox = (await slices.first().boundingBox())!;
   const petalBox = (await slices.nth(1).boundingBox())!;
