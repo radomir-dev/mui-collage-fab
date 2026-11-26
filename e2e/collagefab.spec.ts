@@ -117,7 +117,7 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   };
 
-  await expect(slices.first()).toHaveCSS('mask-image', /radial-gradient/);
+  await expect(slices.first()).toHaveCSS('mask-image', 'none');
   const closed = await centre(0);
 
   const stacking = await group.evaluate((root) =>
@@ -129,7 +129,11 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
 
   const anchorBox = (await slices.first().boundingBox())!;
   const petalBox = (await slices.nth(1).boundingBox())!;
-  expect(petalBox.width - anchorBox.width).toBeCloseTo(4, 0);
+  const gapToAnchor = Math.hypot(
+    petalBox.x + petalBox.width / 2 - (anchorBox.x + anchorBox.width / 2),
+    petalBox.y + petalBox.height / 2 - (anchorBox.y + anchorBox.height / 2),
+  );
+  expect(gapToAnchor).toBeCloseTo(6, 0);
 
   await group.hover();
   await page.waitForTimeout(700);
