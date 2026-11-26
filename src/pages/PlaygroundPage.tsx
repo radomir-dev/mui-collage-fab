@@ -151,7 +151,12 @@ function buildSnippet(config: {
 
   const lines = ['<CollageFab', `  variant="${variant}"`, `  spread="${spread}"`];
   if (spread === 'radial') {
-    lines.push(`  radialStart={${radialStart}}`, `  radialStep={${radialStep}}`);
+    if (radialStart !== 0) {
+      lines.push(`  radialStart={${radialStart}}`);
+    }
+    if (radialStep !== null) {
+      lines.push(`  radialStep={${radialStep}}`);
+    }
   } else {
     lines.push(`  direction="${direction}"`);
   }
@@ -194,8 +199,19 @@ export function PlaygroundPage() {
   const radial = spread === 'radial';
   const step = radialStep ?? Math.round(360 / Math.max(count - 1, 1));
   const pitch = sizePx + gap;
+  const ring = Array.from({ length: count }, (_, index) => {
+    if (index === 0) {
+      return { x: 0, y: 0 };
+    }
+    const angle = ((radialStart + (index - 1) * step) * Math.PI) / 180;
+    return { x: Math.sin(angle) * pitch, y: -Math.cos(angle) * pitch };
+  });
+  const ringWidth =
+    Math.max(...ring.map((point) => point.x)) - Math.min(...ring.map((point) => point.x)) + sizePx;
+  const ringHeight =
+    Math.max(...ring.map((point) => point.y)) - Math.min(...ring.map((point) => point.y)) + sizePx;
   const expandedExtent = radial
-    ? 2 * pitch + sizePx
+    ? Math.max(ringWidth, ringHeight)
     : count * sizePx + Math.max(count - 1, 0) * gap;
   const horizontal = direction === 'left' || direction === 'right';
   // The anchor hugs the edge it fans from, so the trigger never moves and the row grows
@@ -297,7 +313,7 @@ export function PlaygroundPage() {
                 </Typography>
                 <Typography variant="caption" sx={{ ...mono, color: 'grey.600' }}>
                   {radial
-                    ? `2 × ${pitch}px + ${sizePx}px = ${expandedExtent}px`
+                    ? `${Math.round(ringWidth)} × ${Math.round(ringHeight)}px`
                     : `${count} × ${sizePx}px + ${Math.max(count - 1, 0)} × ${gap}px = ${expandedExtent}px`}
                 </Typography>
               </Box>

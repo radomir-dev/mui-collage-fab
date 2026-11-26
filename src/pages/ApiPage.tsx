@@ -376,10 +376,10 @@ export function ApiPage() {
       </Typography>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 2 }}>
         The anchor never joins the ring. It keeps its place at the centre and stays unclipped, which
-        is what gives the collapsed group its opaque base: every wedge fades into that base along
-        its leading edge, and the last one fades back into it, so the collapsed stack has no hard
-        seam. Past eight children at the default size the buttons stop fitting around the circle and
-        the wedges start clipping the overlap.
+        is what gives the collapsed group its opaque base: each wedge fades in from the one before
+        it, and the last one fades back into that base, so the collapsed stack has no hard seam.
+        Past eight children at the default size the buttons stop fitting around the circle and the
+        wedges start clipping the overlap.
       </Typography>
       <Typography color="text.secondary" sx={{ maxWidth: 780, mb: 6 }}>
         A ring keeps the root box a single button wide and paints outside it, which is what holds

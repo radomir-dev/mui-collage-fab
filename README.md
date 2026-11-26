@@ -138,7 +138,7 @@ const theme = createTheme({
 6. **With a single child no mask is applied** — it behaves like a plain `Fab`.
 7. **`direction` is physical, not logical.** It is not mirrored under RTL; right-to-left layouts should set `direction="left"` explicitly.
 8. **`directions` gives each child its own direction**, in child order; children that share one fan a pitch apart, so a group can split into a row and a column.
-9. **`spread="radial"` rings the children around the anchor** at one pitch, with `radialStart` rotating the ring and `radialStep` (default `360 / (count - 1)`) spacing the ring children evenly. The anchor stays at the centre and never moves: a wedge cuts each child so it emerges as a petal, and the anchor is the opaque base the wedges fade into.
+9. **`spread="radial"` rings the children around the anchor** at one pitch, with `radialStart` rotating the ring and `radialStep` (default `360 / (count - 1)`) spacing the ring children evenly. The anchor stays at the centre and never moves: a wedge cuts each child so it emerges as a petal, each petal fades in from the one before it, and the last one fades back into the anchor's disc, which is the base the collapsed stack reads as.
 
 ## Demo site
 
