@@ -1,3 +1,10 @@
+# [0.7.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.6.0...v0.7.0) (2026-11-26)
+
+
+### Features
+
+* **demo:** gather the mixed axes in one square card ([#81](https://github.com/radomir-dev/mui-collage-fab/issues/81)) ([5da9061](https://github.com/radomir-dev/mui-collage-fab/commit/5da90619cf8ad232eeb9b50947cdfd0539fbc5e8))
+
 # [0.6.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.5.1...v0.6.0) (2026-11-26)
 
 
