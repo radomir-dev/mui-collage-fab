@@ -228,13 +228,14 @@ export interface CollageFabProps extends Omit<React.HTMLAttributes<HTMLDivElemen
    */
   gap?: number;
   /**
-   * Width in pixels of the soft cut line between two slices. On a ring it is also
-   * how soft the seam between two petals is, and between the last petal and the anchor.
+   * Width in pixels of the soft cut line between two slices. On a ring it is also the
+   * width of the ramp where the petals blend into the anchor and into each other.
    */
   fadeWidth?: number;
   /**
-   * How many pixels the petals of a collapsed radial group stick out past the anchor,
-   * leaving a rim of their colours around the button. `0` hides them completely.
+   * How many pixels the petals of a collapsed ring or multi-axis group grow beyond the
+   * anchor's radius, so their colours show as an even collar blended into the button.
+   * `0` hides them completely.
    */
   ringPeek?: number;
   /**
