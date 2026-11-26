@@ -243,7 +243,10 @@ function MixedStage({
 
 function MixedAxesCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
+    <Paper
+      elevation={3}
+      sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}
+    >
       <CardHeading title="Mixed axes" caption="Corners and centre" />
 
       <Box sx={{ position: 'relative', flexGrow: 1, mt: 1, minHeight: 0 }}>
@@ -269,7 +272,10 @@ function MixedAxesCard() {
 
 function ThreeSidesCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
+    <Paper
+      elevation={3}
+      sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}
+    >
       <CardHeading title="Three sides" caption="120° each" />
 
       <Box sx={{ position: 'relative', flexGrow: 1, mt: 1, minHeight: 0 }}>
@@ -281,7 +287,10 @@ function ThreeSidesCard() {
 
 function RadialCard() {
   return (
-    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}>
+    <Paper
+      elevation={3}
+      sx={{ ...CARD_SX, p: 1.5, width: 280, height: DEMO_CARD_HEIGHT, flexShrink: 0 }}
+    >
       <CardHeading title="Radial" caption="Ring around the anchor" />
 
       {/* A radial group is centred on the anchor in both axes, so a centring stage
