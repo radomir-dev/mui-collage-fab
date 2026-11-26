@@ -339,6 +339,18 @@ function MixedAxesCard() {
   );
 }
 
+function ThreeSidesCard() {
+  return (
+    <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
+      <CardHeading title="Three sides" caption="120° each" />
+
+      <Box sx={{ position: 'relative', aspectRatio: '1', mt: 1 }}>
+        <MixedStage directions={['up', 'left', 'right', 'up']} justify="center" align="center" />
+      </Box>
+    </Paper>
+  );
+}
+
 function RadialCard() {
   return (
     <Paper elevation={3} sx={{ ...CARD_SX, p: 1.5, width: 280, flexShrink: 0 }}>
@@ -423,6 +435,7 @@ export function DemoPage() {
 
       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, flexWrap: 'wrap' }}>
         <MixedAxesCard />
+        <ThreeSidesCard />
         <RadialCard />
       </Box>
     </Container>
