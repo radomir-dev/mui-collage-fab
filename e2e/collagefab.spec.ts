@@ -120,9 +120,15 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
 
   const slices = group.locator('.MuiCollageFab-item');
   const count = await slices.count();
+  // Measured against the card, so a reflowed page cannot look like a moving anchor.
+  const cardBox = async () => (await card(page, 'Radial').boundingBox())!;
   const centre = async (index: number) => {
     const box = (await slices.nth(index).boundingBox())!;
-    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const frame = await cardBox();
+    return {
+      x: box.x + box.width / 2 - frame.x,
+      y: box.y + box.height / 2 - frame.y,
+    };
   };
 
   await expect(slices.first()).toHaveCSS('mask-image', 'none');

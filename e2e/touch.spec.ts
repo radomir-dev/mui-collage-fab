@@ -6,10 +6,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 const group = (page: Page) =>
-  page
-    .locator('.MuiPaper-root')
-    .filter({ has: page.getByRole('heading', { name: 'left', exact: true }) })
-    .locator('.MuiCollageFab-root');
+  page.getByTestId('direction-card').locator('.MuiCollageFab-root').nth(3);
 
 test('a tap opens the group on touch devices', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'touch input only');
