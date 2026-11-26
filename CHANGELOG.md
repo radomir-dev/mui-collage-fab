@@ -1,3 +1,10 @@
+## [0.11.1](https://github.com/radomir-dev/mui-collage-fab/compare/v0.11.0...v0.11.1) (2026-11-26)
+
+
+### Bug Fixes
+
+* **radial:** hold the collar still with an offset, not a scale ([#92](https://github.com/radomir-dev/mui-collage-fab/issues/92)) ([0839dd0](https://github.com/radomir-dev/mui-collage-fab/commit/0839dd09fc46189187e27d08abb28d202262c3e5))
+
 # [0.11.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.10.0...v0.11.0) (2026-11-26)
 
 
