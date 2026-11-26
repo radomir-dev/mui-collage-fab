@@ -1,9 +1,17 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 
-const card = (page: Page, direction: string) =>
+const card = (page: Page, title: string) =>
   page
     .locator('.MuiPaper-root')
-    .filter({ has: page.getByRole('heading', { name: direction, exact: true }) });
+    .filter({ has: page.getByRole('heading', { name: title, exact: true }) });
+
+// The four single-axis fans share one square, in card order: down, right, up, left.
+const DIRECTION_GROUPS: Record<string, number> = { down: 0, right: 1, up: 2, left: 3 };
+const directionGroup = (page: Page, direction: string) =>
+  page
+    .getByTestId('direction-card')
+    .locator('.MuiCollageFab-root')
+    .nth(DIRECTION_GROUPS[direction]);
 
 const readSlice = (slice: Locator) =>
   slice.evaluate((element) => {
@@ -49,7 +57,7 @@ test('expanding moves the slice and its mask by the same pitch, in opposite dire
     ['left', 'x'],
     ['up', 'y'],
   ] as const) {
-    const group = card(page, direction).locator('.MuiCollageFab-root');
+    const group = directionGroup(page, direction);
     await group.scrollIntoViewIfNeeded();
 
     const slices = group.locator('.MuiCollageFab-item');
@@ -112,9 +120,15 @@ test('a radial group rings the anchor without moving it', async ({ page }) => {
 
   const slices = group.locator('.MuiCollageFab-item');
   const count = await slices.count();
+  // Measured against the card, so a reflowed page cannot look like a moving anchor.
+  const cardBox = async () => (await card(page, 'Radial').boundingBox())!;
   const centre = async (index: number) => {
     const box = (await slices.nth(index).boundingBox())!;
-    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    const frame = await cardBox();
+    return {
+      x: box.x + box.width / 2 - frame.x,
+      y: box.y + box.height / 2 - frame.y,
+    };
   };
 
   await expect(slices.first()).toHaveCSS('mask-image', 'none');
@@ -176,7 +190,7 @@ test('a ring owns the gap between the anchor and its children', async ({ page })
 });
 
 test('collapsed slices leave the accessibility tree and the tab order', async ({ page }) => {
-  const group = card(page, 'left').locator('.MuiCollageFab-root');
+  const group = directionGroup(page, 'left');
   const slices = group.locator('.MuiCollageFab-item');
 
   await expect(group).toHaveClass(/MuiCollageFab-collapsed/);
@@ -187,7 +201,7 @@ test('collapsed slices leave the accessibility tree and the tab order', async ({
 test('opens from the keyboard, focuses the first action and collapses on Escape', async ({
   page,
 }) => {
-  const group = card(page, 'left').locator('.MuiCollageFab-root');
+  const group = directionGroup(page, 'left');
   await group.scrollIntoViewIfNeeded();
 
   await group.focus();
