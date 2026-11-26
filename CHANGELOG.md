@@ -1,3 +1,10 @@
+# [0.16.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.15.0...v0.16.0) (2026-11-26)
+
+
+### Features
+
+* **radial:** grow the petals so the collar is an even band ([#101](https://github.com/radomir-dev/mui-collage-fab/issues/101)) ([7b029e1](https://github.com/radomir-dev/mui-collage-fab/commit/7b029e1d8013ef54e9cb8832a3ed925951015bc2))
+
 # [0.15.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.14.0...v0.15.0) (2026-11-26)
 
 
