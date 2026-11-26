@@ -53,7 +53,7 @@ const BEHAVIOR_NOTES = [
   'Clicking away closes the group unless disableClickAway is set. No click-away listener is attached in manual mode.',
   'Escape collapses the group.',
   'Keyboard: while collapsed the root is focusable; Enter or Space opens it and moves focus to the first item; Escape collapses it and returns focus to the root.',
-  'While collapsed, the item wrappers are aria-hidden and made non-focusable, so the collapsed slices leave both the tab order and the accessibility tree.',
+  'While collapsed, the item wrappers are aria-hidden and made non-focusable, so the collapsed slices leave both the tab order and the accessibility tree; with trigger="manual" the anchor stays live so it can act as the handle.',
   "Every child is forced to box-shadow: none, 100% size and the wrapper's corner radius, so the root owns the single silhouette and drop shadow.",
   'With a single child no mask is applied, and the component behaves like a plain Fab.',
   'directions gives every child its own direction, in child order; the anchor stays put and the children sharing a direction fan one pitch apart.',

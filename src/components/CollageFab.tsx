@@ -691,7 +691,7 @@ export const CollageFab = React.forwardRef<HTMLDivElement, CollageFabProps>(
             geometry={getItemGeometry(index, ownerState)}
             className={classes.item}
             component={ItemComponent}
-            inert={!open && trigger !== 'manual'}
+            inert={!open && (trigger !== 'manual' || index > 0)}
             itemRefs={itemRefs}
             slotProps={slotProps?.item}
           >
