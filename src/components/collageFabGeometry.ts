@@ -72,6 +72,18 @@ function directionOf(index: number, ownerState: CollageFabOwnerState): CollageFa
 }
 
 /** The offset a child travels by once the group is fully expanded. */
+/** Where a child sits while collapsed: a ring's petals keep a collar of `ringPeek` px out. */
+function getRestOffset(index: number, ownerState: CollageFabOwnerState): Vector {
+  if (ownerState.spread !== 'radial' || index === 0 || !ownerState.ringPeek) {
+    return ORIGIN;
+  }
+  const angle = ((ownerState.radialStart + (index - 1) * ownerState.radialStep) * Math.PI) / 180;
+  return {
+    x: clean(Math.sin(angle) * ownerState.ringPeek),
+    y: clean(-Math.cos(angle) * ownerState.ringPeek),
+  };
+}
+
 function getItemOffset(index: number, ownerState: CollageFabOwnerState): Vector {
   const pitch = ownerState.size + ownerState.gap;
 
@@ -162,7 +174,7 @@ export function getItemGeometry(
   const [x, y] = DIRECTION_VECTORS[directionOf(index, ownerState)];
   const horizontal = x !== 0;
   const leading = (horizontal ? x : y) < 0;
-  const offset = open ? getItemOffset(index, ownerState) : ORIGIN;
+  const offset = open ? getItemOffset(index, ownerState) : getRestOffset(index, ownerState);
 
   // Slice boundaries, measured inside the item from the edge the group fans towards.
   // The anchor takes a whole `spread` so its cut line never crosses the button: it is
@@ -195,7 +207,7 @@ export function getItemGeometry(
 function getWedgeGeometry(index: number, ownerState: CollageFabOwnerState): CollageFabItemGeometry {
   const { count, size, gap, fadeWidth, open } = ownerState;
   const step = ownerState.radialStep;
-  const offset = open ? getItemOffset(index, ownerState) : ORIGIN;
+  const offset = open ? getItemOffset(index, ownerState) : getRestOffset(index, ownerState);
   // Every child of a ring travels one pitch, so the mask image has to reach that far
   // past it for the apex to stay on the stack centre.
   const reach = count > 1 ? size + gap : 0;
@@ -247,7 +259,7 @@ function getSectorGeometry(
   const slot = sides.indexOf(side);
 
   const offsets = Array.from({ length: count }, (_, child) => getItemOffset(child, ownerState));
-  const offset = open ? offsets[index] : ORIGIN;
+  const offset = open ? offsets[index] : getRestOffset(index, ownerState);
   const travel = Math.max(...offsets.map((entry) => Math.abs(entry.x) + Math.abs(entry.y)));
   const extent = size + 2 * travel;
   const fade = fadeWidth ? ((fadeWidth / (size / 2)) * 180) / Math.PI : 0;

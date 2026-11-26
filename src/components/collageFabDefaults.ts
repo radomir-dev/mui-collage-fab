@@ -17,7 +17,7 @@ export const COLLAGE_FAB_DEFAULTS = {
   variant: 'circular',
   gap: 16,
   fadeWidth: 12,
-  ringPeek: 2,
+  ringPeek: 6,
   spread: 'line',
   radialStart: 0,
   trigger: 'hover',

@@ -134,15 +134,19 @@ describe('getItemGeometry with radial spread', () => {
   });
 
   it('keeps the wedge apex on the stack centre while the child slides out', () => {
-    for (const index of [1, 2, 3]) {
-      const closed = getItemGeometry(index, radial());
-      const opened = getItemGeometry(index, radial({ open: true }));
-      const [closedX, closedY] = numbers(closed.maskPosition);
-      const [openX, openY] = numbers(opened.maskPosition);
-      const translate = offsetOf(opened.translate);
+    // The apex sits `reach` in from the mask's top-left, so apex + travel must cancel out.
+    const reach = 56 + 16;
 
-      expect(openX + translate.x).toBeCloseTo(closedX, 6);
-      expect(openY + translate.y).toBeCloseTo(closedY, 6);
+    for (const index of [1, 2, 3]) {
+      for (const state of [radial(), radial({ open: true })]) {
+        const position = offsetOf(getItemGeometry(index, state).maskPosition);
+        const travel = offsetOf(getItemGeometry(index, state).translate);
+
+        expect(position.x + reach).toBeCloseTo(-travel.x, 6);
+        expect(position.y + reach).toBeCloseTo(-travel.y, 6);
+      }
+
+      const opened = getItemGeometry(index, radial({ open: true }));
       expect(opened.maskImage).toContain('conic-gradient(from ');
       expect(numbers(opened.maskSize)).toEqual([200, 200]);
     }
