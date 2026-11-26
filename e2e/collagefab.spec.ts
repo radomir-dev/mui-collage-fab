@@ -114,6 +114,25 @@ test('a mixed group fans along both axes', async ({ page }) => {
   expect(box.height).toBeGreaterThan(100);
 });
 
+test('a centred group keeps its box and stays open on the way to a child', async ({ page }) => {
+  const group = card(page, 'Mixed axes').locator('.MuiCollageFab-root').nth(2);
+  await group.scrollIntoViewIfNeeded();
+  const closed = (await group.boundingBox())!;
+
+  await group.hover();
+  await expect(group).toHaveClass(/Mui-expanded/);
+  await page.waitForTimeout(600);
+
+  const opened = (await group.boundingBox())!;
+  expect(opened.width).toBeCloseTo(closed.width, 0);
+  expect(opened.height).toBeCloseTo(closed.height, 0);
+
+  const child = (await group.locator('.MuiCollageFab-item').nth(1).boundingBox())!;
+  await page.mouse.move(child.x + child.width / 2, child.y + child.height / 2);
+  await page.waitForTimeout(400);
+  await expect(group).toHaveClass(/Mui-expanded/);
+});
+
 test('a radial group rings the anchor without moving it', async ({ page }) => {
   const group = card(page, 'Radial').locator('.MuiCollageFab-root');
   await group.scrollIntoViewIfNeeded();
