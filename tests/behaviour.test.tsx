@@ -19,6 +19,24 @@ function renderFab(props: Partial<React.ComponentProps<typeof CollageFab>> = {})
   return { ...utils, group, slices, buttons };
 }
 
+const stubHover = (matches: boolean) => {
+  const original = window.matchMedia;
+  window.matchMedia = (query: string) =>
+    ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+  return () => {
+    window.matchMedia = original;
+  };
+};
+
 const pointerEnter = (element: Element) =>
   fireEvent.pointerOver(element, { pointerType: 'mouse', relatedTarget: null });
 const pointerLeave = (element: Element) =>
@@ -84,6 +102,36 @@ describe('CollageFab triggers', () => {
     fireEvent.pointerDown(group(), { pointerType: 'touch' });
 
     expect(group()).toHaveClass('Mui-expanded');
+  });
+});
+
+describe('CollageFab auto trigger', () => {
+  it('follows hover where the pointer can hover', () => {
+    const restore = stubHover(true);
+    try {
+      const { group } = renderFab({ trigger: 'auto' });
+
+      pointerEnter(group());
+      expect(group()).toHaveClass('Mui-expanded');
+
+      pointerLeave(group());
+      expect(group()).toHaveClass('MuiCollageFab-collapsed');
+    } finally {
+      restore();
+    }
+  });
+
+  it('follows a click where the pointer cannot hover', async () => {
+    const restore = stubHover(false);
+    try {
+      const user = userEvent.setup();
+      const { group } = renderFab({ trigger: 'auto' });
+
+      await user.click(group());
+      expect(group()).toHaveClass('Mui-expanded');
+    } finally {
+      restore();
+    }
   });
 });
 

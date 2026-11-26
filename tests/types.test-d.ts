@@ -7,7 +7,7 @@ describe('CollageFab public types', () => {
       'left' | 'right' | 'up' | 'down'
     >();
     expectTypeOf<NonNullable<CollageFabProps['trigger']>>().toEqualTypeOf<
-      'hover' | 'click' | 'manual'
+      'hover' | 'click' | 'manual' | 'auto'
     >();
     expectTypeOf<NonNullable<CollageFabProps['variant']>>().toEqualTypeOf<
       'circular' | 'rounded' | 'square'
