@@ -1,3 +1,10 @@
+# [0.15.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.14.0...v0.15.0) (2026-11-26)
+
+
+### Features
+
+* **demo:** give the four demo cards one size ([#99](https://github.com/radomir-dev/mui-collage-fab/issues/99)) ([c2505f4](https://github.com/radomir-dev/mui-collage-fab/commit/c2505f4f6a02a990b5ada43fe7ca9ae6adba2b4b))
+
 # [0.14.0](https://github.com/radomir-dev/mui-collage-fab/compare/v0.13.0...v0.14.0) (2026-11-26)
 
 
